@@ -62,10 +62,14 @@ function trackTime() {
     if (activeTabId !== null && startTime !== 0) {
         const elapsedTime = Date.now() - startTime;
         tabTimes[activeTabId] = (tabTimes[activeTabId] || 0) + elapsedTime;
-        chrome.storage.local.set({ tabTimes, tabTitles }, () => {
-            chrome.runtime.sendMessage({ action: "updateDashboard" });
-        });
         startTime = Date.now();
+
+        chrome.storage.local.set({ tabTimes, tabTitles }, () => {
+            console.log("滞在時間更新:", tabTimes); // デバッグ用
+            chrome.runtime.sendMessage({ action: "updateDashboard" }, () => {
+                console.log("updateDashboard メッセージ送信");
+            });
+        });
     }
 }
 
