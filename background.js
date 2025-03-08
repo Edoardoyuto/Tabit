@@ -89,21 +89,26 @@ function sortTabsByTime() {
         const tabTimes = data.tabTimes || {};
 
         chrome.tabs.query({ currentWindow: true }, tabs => {
+            if (!tabs || tabs.length === 0) {
+                console.warn("📌 開いているタブが見つかりません");
+                return;
+            }
+
             const openTabIds = tabs.map(tab => tab.id);
 
             // 閲覧時間が長い順にタブIDをソート
             const sortedTabIds = Object.entries(tabTimes)
-                .sort((a, b) => b[1] - a[1])
-                .map(entry => parseInt(entry[0]))
-                .filter(tabId => openTabIds.includes(tabId));
+                .filter(([tabId, time]) => openTabIds.includes(parseInt(tabId))) // 開いているタブのみ対象
+                .sort((a, b) => b[1] - a[1]) // 時間が長い順
+                .map(entry => parseInt(entry[0]));
 
             console.log("📌 ソート後のタブIDリスト:", sortedTabIds);
 
-            // タブを左から順番に並べ替え
+            // タブを左から順番に移動 (非同期で処理)
             sortedTabIds.forEach((tabId, index) => {
                 chrome.tabs.move(tabId, { index }, () => {
                     if (chrome.runtime.lastError) {
-                        console.warn("タブ移動エラー:", chrome.runtime.lastError.message);
+                        console.warn(`🚨 タブ移動エラー (${tabId}):`, chrome.runtime.lastError.message);
                     }
                 });
             });
@@ -121,3 +126,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sortTabsByTime();
     }
 });
+
