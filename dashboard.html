@@ -51,13 +51,13 @@
 
     <script>
         document.getElementById("sortButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "sortTabsRequest" }, () => {
-                // ソート後にダッシュボードを更新
-                setTimeout(() => {
-                    chrome.runtime.sendMessage({ action: "updateDashboard" });
-                }, 500);
-            });
+            chrome.runtime.sendMessage({ action: "sortTabsRequest" });
         });
+
+        // 定期的に時間を更新するためのループ
+        setInterval(() => {
+            chrome.runtime.sendMessage({ action: "updateDashboard" });
+        }, 1000);
     </script>
 </body>
 </html>
