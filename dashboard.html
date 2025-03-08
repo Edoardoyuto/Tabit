@@ -34,7 +34,43 @@
             cursor: pointer;
         }
     </style>
-    <script src="dashboard.js"></script>
+    <script>
+        let sortAscending = true;
+
+        function updateDashboard() {
+            chrome.storage.local.get(["tabTimes", "tabTitles"], data => {
+                const timeTable = document.getElementById("timeTable");
+                timeTable.innerHTML = "";
+                let tabData = [];
+
+                for (let tabId in data.tabTimes) {
+                    tabData.push({
+                        title: data.tabTitles[tabId] || `Tab ${tabId}`,
+                        time: data.tabTimes[tabId] / 1000
+                    });
+                }
+
+                // ソート処理
+                tabData.sort((a, b) => sortAscending ? a.time - b.time : b.time - a.time);
+
+                tabData.forEach(tab => {
+                    let row = document.createElement("tr");
+                    row.innerHTML = `<td>${tab.title}</td><td>${tab.time.toFixed(1)}</td>`;
+                    timeTable.appendChild(row);
+                });
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateDashboard();
+            setInterval(updateDashboard, 1000);
+
+            document.getElementById("sortButton").addEventListener("click", () => {
+                sortAscending = !sortAscending;
+                updateDashboard();
+            });
+        });
+    </script>
 </head>
 <body>
     <h1>閲覧時間ダッシュボード</h1>
