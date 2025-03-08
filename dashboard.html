@@ -50,21 +50,9 @@
     </table>
 
     <script>
-        // ソートボタンを押した後も `updateDashboard()` のループが継続するようにする
         document.getElementById("sortButton").addEventListener("click", () => {
             chrome.runtime.sendMessage({ action: "sortTabsRequest" });
-
-            // 既存の自動更新をリセットして確実に動かす
-            clearInterval(window.updateLoop);
-            window.updateLoop = setInterval(() => {
-                chrome.runtime.sendMessage({ action: "updateDashboard" });
-            }, 1000);
         });
-
-        // 初回ロード時に時間更新を開始
-        window.updateLoop = setInterval(() => {
-            chrome.runtime.sendMessage({ action: "updateDashboard" });
-        }, 1000);
     </script>
 </body>
 </html>
