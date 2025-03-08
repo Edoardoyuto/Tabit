@@ -85,6 +85,8 @@ chrome.runtime.onStartup.addListener(() => {
 
 // 閲覧時間順にタブをソート
 function sortTabsByTime() {
+    console.log("🛠 ソートリクエスト受信 - タブを並び替えます");
+
     chrome.storage.local.get(["tabTimes"], data => {
         const tabTimes = data.tabTimes || {};
 
@@ -104,11 +106,13 @@ function sortTabsByTime() {
 
             console.log("📌 ソート後のタブIDリスト:", sortedTabIds);
 
-            // タブを左から順番に移動 (非同期で処理)
+            // タブを左から順番に移動 (非同期処理)
             sortedTabIds.forEach((tabId, index) => {
                 chrome.tabs.move(tabId, { index }, () => {
                     if (chrome.runtime.lastError) {
                         console.warn(`🚨 タブ移動エラー (${tabId}):`, chrome.runtime.lastError.message);
+                    } else {
+                        console.log(`✅ タブ ${tabId} を位置 ${index} に移動`);
                     }
                 });
             });
@@ -122,8 +126,8 @@ function sortTabsByTime() {
 // メッセージを受け取ってタブをソート
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "sortTabsRequest") {
-        console.log("🛠 ソートリクエスト受信 - タブを並び替えます");
         sortTabsByTime();
     }
 });
+
 
