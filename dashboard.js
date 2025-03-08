@@ -1,4 +1,3 @@
-/* dashboard.js */
 function updateDashboard() {
     chrome.storage.local.get(["tabTimes", "tabTitles"], data => {
         const timeTable = document.getElementById("timeTable");
@@ -13,17 +12,19 @@ function updateDashboard() {
             row.innerHTML = `<td>${title}</td><td>${time.toFixed(1)}</td>`;
             timeTable.appendChild(row);
         }
+
+        console.log("ダッシュボード更新:", new Date().toLocaleTimeString());
     });
 }
 
+// メッセージが来たらダッシュボードを更新
 chrome.runtime.onMessage.addListener((message) => {
     if (message.action === "updateDashboard") {
         updateDashboard();
     }
 });
 
-
-// 初回表示
+// 初回表示 & 1秒ごとの更新ループ
 document.addEventListener("DOMContentLoaded", () => {
     updateDashboard();
     setInterval(updateDashboard, 1000);
