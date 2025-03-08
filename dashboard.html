@@ -50,8 +50,13 @@
     </table>
 
     <script>
-        document.getElementById("sortButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "sortTabsRequest" });
+         document.getElementById("sortButton").addEventListener("click", () => {
+            chrome.runtime.sendMessage({ action: "sortTabsRequest" }, () => {
+                // ソート後にダッシュボードを更新
+                setTimeout(() => {
+                    chrome.runtime.sendMessage({ action: "updateDashboard" });
+                }, 500);
+            });
         });
     </script>
 </body>
