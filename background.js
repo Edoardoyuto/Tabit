@@ -38,6 +38,10 @@ chrome.windows.onFocusChanged.addListener(windowId => {
     }
 });
 
+// 1秒ごとに滞在時間を更新する
+setInterval(trackTime, 1000);
+
+
 // タブが閉じられたときの処理
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     if (tabId === activeTabId) {
