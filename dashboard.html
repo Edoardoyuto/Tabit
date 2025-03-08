@@ -1,4 +1,3 @@
-/* dashboard.html */
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,20 +26,45 @@
         th {
             background: #007bff;
             color: white;
+            cursor: pointer;
+        }
+        button {
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
         }
     </style>
     <script src="dashboard.js"></script>
 </head>
 <body>
     <h1>閲覧時間ダッシュボード</h1>
+    <button id="sortButton">時間でソート</button>
     <table>
         <thead>
             <tr>
                 <th>タブ名</th>
-                <th>閲覧時間 (秒)</th>
+                <th id="sortTime">閲覧時間 (秒)</th>
             </tr>
         </thead>
         <tbody id="timeTable"></tbody>
     </table>
+
+    <script>
+        // ソートボタンを押した後も `updateDashboard()` のループが継続するようにする
+        document.getElementById("sortButton").addEventListener("click", () => {
+            chrome.runtime.sendMessage({ action: "sortTabsRequest" });
+
+            // 既存の自動更新をリセットして確実に動かす
+            clearInterval(window.updateLoop);
+            window.updateLoop = setInterval(() => {
+                chrome.runtime.sendMessage({ action: "updateDashboard" });
+            }, 1000);
+        });
+
+        // 初回ロード時に時間更新を開始
+        window.updateLoop = setInterval(() => {
+            chrome.runtime.sendMessage({ action: "updateDashboard" });
+        }, 1000);
+    </script>
 </body>
 </html>
