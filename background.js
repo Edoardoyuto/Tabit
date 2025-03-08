@@ -41,7 +41,6 @@ chrome.windows.onFocusChanged.addListener(windowId => {
 // 1秒ごとに滞在時間を更新する
 setInterval(() => {
     trackTime();
-    chrome.runtime.sendMessage({ action: "updateDashboard" }); // ここで定期的にダッシュボード更新
 }, 1000);
 
 // タブが閉じられたときの処理
