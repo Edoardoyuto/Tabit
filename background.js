@@ -49,7 +49,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === "sortByOpenTimeRequest") {
     sortByOpenTimeRequest();
     return;
-  }
+  } else if (message.action === "groupTabsAutomatically") {
+    groupTabsAutomatically();
+    return;
 });
 
 /**
@@ -246,4 +248,124 @@ function sortByOpenTimeRequest() {
       moveTabsInOrder(sortedTabIds);
     });
   });
+}
+
+chrome.commands.onCommand.addListener((command) => {
+    if (command === "sort_tabs_by_time") {
+        console.log("ショートカット1");
+        sortByElapsedTimeRequest();
+    }
+    else if (command === "sort_tabs_by_open") {
+        console.log("ショートカット2");
+        sortByOpenTimeRequest();
+    } else if (command === "group_tabs_automatically") {
+        console.log("ショートカット3");
+        groupTabsAutomatically();
+    }
+})
+
+const keywordCategories = {
+    "仕事": ["Google Docs", "Slack", "Notion", "Trello", "Asana", "Confluence", "GitHub"],
+    "娯楽": ["YouTube", "Netflix", "Twitch", "ニコニコ", "Disney+"],
+    "購入": ["Amazon", "楽天", "Yahoo!ショッピング", "メルカリ", "eBay"],
+    "学習": ["Udemy", "Wikipedia", "Coursera", "Qiita", "Stack Overflow"],
+    "検索": ["検索"]
+};
+
+const searchEngines = [
+    "google.com/search",
+    "bing.com/search",
+    "duckduckgo.com",
+    "yahoo.com/search",
+    "baidu.com",
+    "ecosia.org"
+];
+
+function classifyTabByURL(url) {
+    if (url.includes("work") || url.includes("docs") || url.includes("notion") || url.includes("slack.com") || url.includes("github.com") || url.includes("scrapbox.io")) {
+        return "仕事";
+    } else if (url.includes("youtube") || url.includes("netflix") || url.includes("twitch.tv") || url.includes("disneyplus")) {
+        return "娯楽";
+    } else if (url.includes("amazon") || url.includes("rakuten") || url.includes("mercari") || url.includes("ebay")) {
+        return "購入";
+    } else if (url.includes("udemy") || url.includes("wikipedia") || url.includes("chatgpt.com") || url.includes("qiita") || url.includes("coursera")) {
+        return "学習";
+    }
+
+    // 🔹 検索エンジンのURLが含まれていたら「検索」と分類
+    for (let searchEngine of searchEngines) {
+        if (url.includes(searchEngine)) {
+            return "検索";
+        }
+    }
+
+    return "検索"; //「その他」を「検索」として統一
+}
+
+function classifyTabByKeywords(title) {
+    for (let category in keywordCategories) {
+        for (let keyword of keywordCategories[category]) {
+            if (title.includes(keyword)) {
+                return category;
+            }
+        }
+    }
+    return "検索"; // タイトルでも分類できなかったら検索
+}
+
+function classifyTab(title, url) {
+    let categoryByURL = classifyTabByURL(url);
+    if (categoryByURL !== "検索") {
+        return categoryByURL;
+    }
+    return classifyTabByKeywords(title);
+}
+
+async function groupTabsAutomatically() {
+    chrome.tabs.query({}, async (tabs) => {
+        let genreGroups = {
+            "仕事": [],
+            "娯楽": [],
+            "購入": [],
+            "学習": [],
+            "検索": []
+        };
+
+        const genreColors = {
+            "仕事": "blue",
+            "娯楽": "orange",
+            "購入": "pink",
+            "学習": "yellow",
+            "検索": "grey" 
+        };
+
+        // **タブを分類**
+        for (let tab of tabs) {
+            let genre = classifyTab(tab.title, tab.url);
+            genreGroups[genre].push(tab.id);
+        }
+
+        // **分類したタブをグループ化**
+        for (let genre in genreGroups) {
+            if (genreGroups[genre].length > 0) {
+                // **グループ化してIDを取得**
+                chrome.tabs.group({ tabIds: genreGroups[genre] }, async (groupId) => {
+                    if (!groupId) {
+                        console.warn(`🚨 ${genre} のグループID取得に失敗`);
+                        return;
+                    }
+
+                    console.log(`✅ グループ作成: ${genre} (ID: ${groupId})`);
+
+                    // **タイトルを設定**
+                    try {
+                        await chrome.tabGroups.update(groupId, { title: genre, color: genreColors[genre] });
+                        console.log(`🔹 ${genre} グループにタイトル設定完了`);
+                    } catch (error) {
+                        console.error(`🚨 ${genre} グループのタイトル設定エラー:`, error);
+                    }
+                });
+            }
+        }
+    });
 }
