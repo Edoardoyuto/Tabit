@@ -4,11 +4,11 @@
     "version": "1.0",
     "permissions": ["tabs", "storage", "tabGroups"],
     "background": {
-      "service_worker": "background.js",
-      "default_icon": "icon.png"
+      "service_worker": "background.js"
     },
     "action": {
-      "default_popup": "dashboard.html"
+      "default_popup": "dashboard.html",
+      "default_icon": "icon.png"
     },
      "icons": {
       "16": "icon.png",
