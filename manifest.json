@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tab Time Tracker",
-  "version": "1.2",
+  "version": "1.3",
   "permissions": ["tabs", "storage", "tabGroups"],
   "host_permissions": ["<all_urls>"], 
   "background": {
@@ -12,8 +12,22 @@
       "default_icon": "icon.png"
   },
   "icons": {
-      "16": "icon.png",
-      "48": "icon.png",
-      "128": "icon.png"
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "commands": {
+    "sort_tabs_by_time": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+1"
+      },
+      "description": "閲覧時間順にタブをソート"
+    },
+    "sort_tabs_by_open": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+2"
+      },
+      "description": "開いた順番にタブをソート"
+    }
   }
-}
+  }
