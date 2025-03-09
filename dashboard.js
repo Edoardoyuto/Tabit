@@ -13,13 +13,14 @@ function updateDashboard() {
             timeTable.appendChild(row);
         }
 
-        console.log("ダッシュボード更新:", new Date().toLocaleTimeString());
+        console.log("✅ ダッシュボード更新:", new Date().toLocaleTimeString());
     });
 }
 
 // メッセージが来たらダッシュボードを更新
 chrome.runtime.onMessage.addListener((message) => {
     if (message.action === "updateDashboard") {
+        console.log("📩 updateDashboard メッセージ受信");
         updateDashboard();
     }
 });
@@ -28,16 +29,22 @@ chrome.runtime.onMessage.addListener((message) => {
 document.addEventListener("DOMContentLoaded", () => {
     updateDashboard();
     setInterval(updateDashboard, 1000);
-});
 
-document.getElementById("sortButton").addEventListener("click", () => {
-    console.log("🔘 ソートボタンが押されました");
-    chrome.runtime.sendMessage({ action: "sortTabsRequest" }, response => {
-        if (chrome.runtime.lastError) {
-            console.error("🚨 メッセージ送信エラー:", chrome.runtime.lastError.message);
-        } else {
-            console.log("✅ メッセージ送信成功");
-        }
-    });
-});
+    // ソートボタンのイベントリスナーを `DOMContentLoaded` 内で設定
+    const sortButton = document.getElementById("sortButton");
+    if (sortButton) {
+        sortButton.addEventListener("click", () => {
+            console.log("🔘 ソートボタンが押されました");
 
+            chrome.runtime.sendMessage({ action: "sortTabsRequest" }, response => {
+                if (chrome.runtime.lastError) {
+                    console.error("🚨 メッセージ送信エラー:", chrome.runtime.lastError.message);
+                } else {
+                    console.log("✅ メッセージ送信成功", response);
+                }
+            });
+        });
+    } else {
+        console.error("🚨 ソートボタンが見つかりませんでした！");
+    }
+});
