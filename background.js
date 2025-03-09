@@ -112,19 +112,32 @@ function sortTabsByTime() {
                 return;
             }
 
-            // 非同期で順番にタブを移動
-            sortedTabIds.forEach((tabId, index) => {
-                chrome.tabs.move(tabId, { index }, () => {
-                    if (chrome.runtime.lastError) {
-                        console.warn(`🚨 タブ移動エラー (${tabId}):`, chrome.runtime.lastError.message);
-                    } else {
-                        console.log(`✅ タブ ${tabId} を位置 ${index} に移動`);
+            // タブの位置を一括で更新する（非同期処理を制御）
+            async function moveTabsInOrder() {
+                for (let i = 0; i < sortedTabIds.length; i++) {
+                    let tabId = sortedTabIds[i];
+                    try {
+                        await new Promise((resolve, reject) => {
+                            chrome.tabs.move(tabId, { index: i }, () => {
+                                if (chrome.runtime.lastError) {
+                                    console.warn(`🚨 タブ移動エラー (${tabId}):`, chrome.runtime.lastError.message);
+                                    reject(chrome.runtime.lastError);
+                                } else {
+                                    console.log(`✅ タブ ${tabId} を位置 ${i} に移動`);
+                                    resolve();
+                                }
+                            });
+                        });
+                    } catch (error) {
+                        console.error(`❌ タブ ${tabId} の移動に失敗しました`, error);
                     }
-                });
-            });
+                }
+            }
 
-            // 並び替え完了のメッセージを送信
-            chrome.runtime.sendMessage({ action: "sortedTabs" });
+            moveTabsInOrder().then(() => {
+                console.log("✅ 全てのタブの並び替えが完了しました");
+                chrome.runtime.sendMessage({ action: "sortedTabs" });
+            });
         });
     });
 }
@@ -139,6 +152,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ status: "ok" });
     }
 });
-
 
 
