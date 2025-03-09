@@ -29,3 +29,15 @@ document.addEventListener("DOMContentLoaded", () => {
     updateDashboard();
     setInterval(updateDashboard, 1000);
 });
+
+document.getElementById("sortButton").addEventListener("click", () => {
+    console.log("🔘 ソートボタンが押されました");
+    chrome.runtime.sendMessage({ action: "sortTabsRequest" }, response => {
+        if (chrome.runtime.lastError) {
+            console.error("🚨 メッセージ送信エラー:", chrome.runtime.lastError.message);
+        } else {
+            console.log("✅ メッセージ送信成功");
+        }
+    });
+});
+
