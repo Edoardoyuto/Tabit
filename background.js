@@ -159,3 +159,72 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sortByOpenTimeRequest();
     }
 });
+
+const API_KEY = "your-openai-api-key"; // 🔹 OpenAI の API キーを入力
+
+async function categorizeTabsWithGPT(tabUrls) {
+    const prompt = `
+    以下のURLのカテゴリを判定してください（仕事, 娯楽, 調査, 買い物, SNS, その他）。
+    URL: ${JSON.stringify(tabUrls)}
+    例:
+    "https://www.google.com/search?q=AI" → "調査"
+    "https://www.youtube.com/watch?v=abc123" → "娯楽"
+    "https://docs.google.com/document/d/xyz" → "仕事"
+    **JSON形式で { "URL": "カテゴリ" } の形で出力してください。**
+    `;
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify({
+            model: "gpt-4", // または "gpt-3.5-turbo"
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 300
+        })
+    });
+
+    const data = await response.json();
+    try {
+        return JSON.parse(data.choices[0].message.content); // 🔹 JSON でカテゴリを取得
+    } catch (error) {
+        console.error("🚨 GPT のレスポンスを解析できません:", data);
+        return {};
+    }
+}
+
+async function groupTabsAutomatically() {
+    chrome.tabs.query({ currentWindow: true }, async tabs => {
+        const tabUrls = tabs.map(tab => tab.url);
+        console.log("🧠 GPT に送信するタブ一覧:", tabUrls);
+
+        const categorizedTabs = await categorizeTabsWithGPT(tabUrls);
+        console.log("📌 GPT 解析結果:", categorizedTabs);
+
+        let groups = {};
+        tabs.forEach(tab => {
+            let category = categorizedTabs[tab.url] || "その他";
+            if (!groups[category]) {
+                groups[category] = [];
+            }
+            groups[category].push(tab.id);
+        });
+
+        // 🔹 タブをカテゴリごとにグループ化
+        Object.entries(groups).forEach(([category, tabIds]) => {
+            chrome.tabGroups.create({ title: category, tabIds }, group => {
+                console.log(`🗂 タブグループ "${category}" を作成しました`);
+            });
+        });
+    });
+}
+
+// 🔹 ボタンを押したらグループ化
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.action === "groupTabsAutoGPT") {
+        groupTabsAutomatically();
+    }
+});
+
