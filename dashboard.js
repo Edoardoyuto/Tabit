@@ -49,3 +49,22 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("🚨 ソートボタンが見つかりませんでした！");
     }
 });
+
+ // **AI グループ化ボタンのイベントリスナー**
+    const aiGroupButton = document.getElementById("groupTabsAutoGPT");
+    if (aiGroupButton) {
+        aiGroupButton.addEventListener("click", () => {
+            console.log("🧠 AI グループ化ボタンが押されました");
+
+            chrome.runtime.sendMessage({ action: "groupTabsAutoGPT" }, response => {
+                if (chrome.runtime.lastError) {
+                    console.error("🚨 メッセージ送信エラー:", chrome.runtime.lastError.message);
+                } else {
+                    console.log("✅ AI グループ化メッセージ送信成功", response);
+                }
+            });
+        });
+    } else {
+        console.error("🚨 AI グループ化ボタンが見つかりませんでした！");
+    }
+});
