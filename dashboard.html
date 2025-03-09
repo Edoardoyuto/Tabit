@@ -1,82 +1,91 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Tab Time Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            width: 500px;
-            background-color: #f4f4f4;
-        }
-        h1 {
-            text-align: center;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background: blue;
-            color: white;
-            cursor: pointer;
-        }
-        td {
-            background: inherit;
-        }
-        button {
-            margin-bottom: 10px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-    </style>
-    <script src="dashboard.js"></script>
+  <meta charset="UTF-8">
+  <title>Tab Time Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      width: 500px;
+      background-color: #f4f4f4;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: blue;
+      color: white;
+      cursor: pointer;
+    }
+    button {
+      margin-bottom: 10px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .priority-section {
+      background: #fff;
+      padding: 10px;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 5px;
+      background: #e0e0e0;
+      padding: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    li button {
+      margin-left: 10px;
+    }
+  </style>
+  <script src="dashboard.js"></script>
 </head>
 <body>
-    <h1>閲覧時間ダッシュボード</h1>
+  <h1>閲覧時間ダッシュボード</h1>
+  
+  <div>
     <button id="sortByElapsedTimeButton">閲覧時間でソート</button>
-    <button id="sortByOpenTimeButton">開いた時間順にソート</button>    
+    <button id="sortByOpenTimeButton">開いた時間順にソート</button>
+  </div>
+  
+  <div class="priority-section">
+    <h2>優先URL設定</h2>
+    <label>優先URL: <input type="text" id="priorityUrlInput"></label>
+    <button id="addPriorityUrlButton">追加</button>
+    <h3>優先URL一覧</h3>
+    <ul id="priorityUrlList"></ul>
+  </div>
+  
+  <div>
+    <h2>タブ一覧</h2>
     <table>
-        <thead>
-            <tr>
-                <th>タブ名</th>
-                <th>閲覧時間 (秒)</th>
-                <th>開いた時間</th>
-            </tr>
-        </thead>
-        <tbody id="timeTable"></tbody>
+      <thead>
+        <tr>
+          <th>タブ名</th>
+          <th>閲覧時間 (秒)</th>
+          <th>開いた時間</th>
+        </tr>
+      </thead>
+      <tbody id="timeTable"></tbody>
     </table>
-
-    <script>
-        document.getElementById("sortByElapsedTimeByElapsedTimeButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, () => {
-                console.log("ソートリクエスト送信完了");
-
-                // ソート後に手動でダッシュボード更新
-                setTimeout(() => {
-                    console.log("ソート後にダッシュボード更新");
-                    chrome.runtime.sendMessage({ action: "updateDashboard" });
-                }, 1000);
-            });
-        });
-        document.getElementById("sortByOpenTimeByElapsedTimeButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "sortByOpenTimeRequest" }, () => {
-                console.log("ソートリクエスト送信完了");
-
-                // ソート後に手動でダッシュボード更新
-                setTimeout(() => {
-                    console.log("ソート後にダッシュボード更新");
-                    chrome.runtime.sendMessage({ action: "updateDashboard" });
-                }, 1000);
-            });
-        });
-    </script>
+  </div>
 </body>
 </html>
