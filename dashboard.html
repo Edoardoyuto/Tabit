@@ -90,7 +90,7 @@
   </div>
   
    <script>
-        document.getElementById("sortByElapsedTimeByElapsedTimeButton").addEventListener("click", () => {
+        document.getElementById("sortByElapsedTimeButton").addEventListener("click", () => {
             chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, () => {
                 console.log("ソートリクエスト送信完了");
 
@@ -101,7 +101,7 @@
                 }, 1000);
             });
         });
-        document.getElementById("sortByOpenTimeByElapsedTimeButton").addEventListener("click", () => {
+        document.getElementById("sortByOpenTimeButton").addEventListener("click", () => {
             chrome.runtime.sendMessage({ action: "sortByOpenTimeRequest" }, () => {
                 console.log("ソートリクエスト送信完了");
 
