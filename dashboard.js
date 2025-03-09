@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sortButton.addEventListener("click", () => {
             console.log("🔘 ソートボタンが押されました");
 
-            chrome.runtime.sendMessage({ action: "sortTabsRequest" }, response => {
+            chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, response => {
                 if (chrome.runtime.lastError) {
                     console.error("🚨 メッセージ送信エラー:", chrome.runtime.lastError.message);
                 } else {
