@@ -15,5 +15,25 @@
       "16": "icon.png",
       "48": "icon.png",
       "128": "icon.png"
+  },
+  "commands": {
+    "sort_tabs_by_time": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+1"
+      },
+      "description": "閲覧時間順にタブをソート"
+    },
+    "sort_tabs_by_open": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+2"
+      },
+      "description": "開いた順番にタブをソート"
+    },
+    "group_tabs_automatically": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+3"
+      },
+      "description": "すべてのタブをURL＆タイトルの両方で自動分類"
+    }
   }
 }
