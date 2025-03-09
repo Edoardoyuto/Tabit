@@ -161,3 +161,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sortByOpenTimeRequest();
     }
 });
+
+chrome.commands.onCommand.addListener((command) => {
+    if (command === "sort_tabs_by_time") {
+        console.log("ショートカットT");
+        sortByElapsedTimeRequest();
+    }
+    else if (command === "sort_tabs_by_open") {
+        console.log("ショートカットO");
+        sortByOpenTimeRequest();
+    }
+})
