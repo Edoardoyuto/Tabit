@@ -160,7 +160,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
-const API_KEY = "your-openai-api-key"; // 🔹 OpenAI の API キーを入力
+const API_KEY = "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"; // 🔹 OpenAI の API キーを入力
 
 async function categorizeTabsWithGPT(tabUrls) {
     const prompt = `
