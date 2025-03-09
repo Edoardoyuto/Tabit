@@ -72,11 +72,15 @@ function trackTime() {
         const elapsedTime = Date.now() - startTime;
 
         tabElapsedTimes[activeTabId] = (tabElapsedTimes[activeTabId] || 0) + elapsedTime;
-        chrome.storage.local.set({ tabElapsedTimes });
+        chrome.storage.local.set({ tabElapsedTimes }, () => {
+            // 🔹 ダッシュボードに時間を更新するメッセージを送る
+            chrome.runtime.sendMessage({ action: "updateDashboard" });
+        });
 
         startTime = Date.now();
     }
 }
+
 
 // Chrome 起動時にダッシュボードを開く
 chrome.runtime.onStartup.addListener(() => {
