@@ -1,11 +1,11 @@
 function updateDashboard() {
-    chrome.storage.local.get(["tabTimes", "tabTitles"], data => {
+    chrome.storage.local.get(["tabElapsedTimes", "tabTitles"], data => {
         const timeTable = document.getElementById("timeTable");
         timeTable.innerHTML = "";
         let totalTime = 0;
 
-        for (let tabId in data.tabTimes) {
-            let time = data.tabTimes[tabId] / 1000;
+        for (let tabId in data.tabElapsedTimes) {
+            let time = data.tabElapsedTimes[tabId] / 1000;
             totalTime += time;
             let title = data.tabTitles[tabId] || `Tab ${tabId}`;
             let row = document.createElement("tr");
@@ -16,6 +16,7 @@ function updateDashboard() {
         console.log("✅ ダッシュボード更新:", new Date().toLocaleTimeString());
     });
 }
+
 
 // メッセージが来たらダッシュボードを更新
 chrome.runtime.onMessage.addListener((message) => {
