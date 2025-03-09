@@ -73,7 +73,9 @@ function trackTime() {
 
         tabElapsedTimes[activeTabId] = (tabElapsedTimes[activeTabId] || 0) + elapsedTime;
         chrome.storage.local.set({ tabElapsedTimes }, () => {
-            // 🔹 ダッシュボードに時間を更新するメッセージを送る
+            console.log("✅ 時間データ保存完了:", tabElapsedTimes);
+            
+            // ✅ データ保存後に updateDashboard メッセージを送信
             chrome.runtime.sendMessage({ action: "updateDashboard" });
         });
 
