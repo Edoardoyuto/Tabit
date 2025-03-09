@@ -2,11 +2,17 @@
     "manifest_version": 3,
     "name": "Tab Time Tracker",
     "version": "1.0",
-    "permissions": ["tabs", "storage"],
+    "permissions": ["tabs", "storage", "tabGroups"],
     "background": {
       "service_worker": "background.js"
     },
     "action": {
-      "default_popup": "dashboard.html"
+      "default_popup": "dashboard.html",
+      "default_icon": "icon.png"
+    },
+     "icons": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
     }
-  }
+}

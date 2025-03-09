@@ -1,4 +1,3 @@
-/* dashboard.js */
 function updateDashboard() {
     chrome.storage.local.get(["tabTimes", "tabTitles"], data => {
         const timeTable = document.getElementById("timeTable");
@@ -13,18 +12,39 @@ function updateDashboard() {
             row.innerHTML = `<td>${title}</td><td>${time.toFixed(1)}</td>`;
             timeTable.appendChild(row);
         }
+
+        console.log("✅ ダッシュボード更新:", new Date().toLocaleTimeString());
     });
 }
 
+// メッセージが来たらダッシュボードを更新
 chrome.runtime.onMessage.addListener((message) => {
     if (message.action === "updateDashboard") {
+        console.log("📩 updateDashboard メッセージ受信");
         updateDashboard();
     }
 });
 
-
-// 初回表示
+// 初回表示 & 1秒ごとの更新ループ
 document.addEventListener("DOMContentLoaded", () => {
     updateDashboard();
     setInterval(updateDashboard, 1000);
+
+    // ソートボタンのイベントリスナーを `DOMContentLoaded` 内で設定
+    const sortButton = document.getElementById("sortButton");
+    if (sortButton) {
+        sortButton.addEventListener("click", () => {
+            console.log("🔘 ソートボタンが押されました");
+
+            chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, response => {
+                if (chrome.runtime.lastError) {
+                    console.error("🚨 メッセージ送信エラー:", chrome.runtime.lastError.message);
+                } else {
+                    console.log("✅ メッセージ送信成功", response);
+                }
+            });
+        });
+    } else {
+        console.error("🚨 ソートボタンが見つかりませんでした！");
+    }
 });

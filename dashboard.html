@@ -42,5 +42,19 @@
         </thead>
         <tbody id="timeTable"></tbody>
     </table>
+
+    <script>
+        document.getElementById("sortButton").addEventListener("click", () => {
+            chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, () => {
+                console.log("ソートリクエスト送信完了");
+
+                // ソート後に手動でダッシュボード更新
+                setTimeout(() => {
+                    console.log("ソート後にダッシュボード更新");
+                    chrome.runtime.sendMessage({ action: "updateDashboard" });
+                }, 1000);
+            });
+        });
+    </script>
 </body>
 </html>
