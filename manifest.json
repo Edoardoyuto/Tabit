@@ -4,9 +4,15 @@
     "version": "1.0",
     "permissions": ["tabs", "storage", "tabGroups"],
     "background": {
-      "service_worker": "background.js"
+      "service_worker": "background.js",
+      "default_icon": "icon.png"
     },
     "action": {
       "default_popup": "dashboard.html"
+    },
+     "icons": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
     }
 }
