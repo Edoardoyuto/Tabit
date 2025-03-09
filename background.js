@@ -100,13 +100,19 @@ function sortTabsByTime() {
 
             // 閲覧時間が長い順にタブIDをソート
             const sortedTabIds = Object.entries(tabTimes)
-                .filter(([tabId, time]) => openTabIds.includes(parseInt(tabId))) // 開いているタブのみ対象
+                .map(([tabId, time]) => [parseInt(tabId), time]) // 文字列のタブIDを数値に変換
+                .filter(([tabId, time]) => openTabIds.includes(tabId)) // 開いているタブのみ対象
                 .sort((a, b) => b[1] - a[1]) // 時間が長い順
-                .map(entry => parseInt(entry[0]));
+                .map(entry => entry[0]); // タブIDのリスト
 
             console.log("📌 ソート後のタブIDリスト:", sortedTabIds);
 
-            // タブを左から順番に移動 (非同期処理)
+            if (sortedTabIds.length === 0) {
+                console.warn("🚨 ソートするタブがありません");
+                return;
+            }
+
+            // 非同期で順番にタブを移動
             sortedTabIds.forEach((tabId, index) => {
                 chrome.tabs.move(tabId, { index }, () => {
                     if (chrome.runtime.lastError) {
@@ -125,9 +131,14 @@ function sortTabsByTime() {
 
 // メッセージを受け取ってタブをソート
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("📩 メッセージ受信:", message);
+
     if (message.action === "sortTabsRequest") {
+        console.log("🛠 ソートリクエストを処理中...");
         sortTabsByTime();
+        sendResponse({ status: "ok" });
     }
 });
+
 
 
