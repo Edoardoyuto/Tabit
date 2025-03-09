@@ -1,20 +1,28 @@
 let activeTabId = null;
-let tabTimes = {};
-let tabTitles = {};
+let tabElapsedTimes = {}; // タブの閲覧時間
+let tabOpenTimes = {}; // タブが最後に見られた時間
+let tabTitles = {}; 
 let startTime = 0;
 
-// タブがアクティブになったときの処理
+// タブがアクティブになったときの処理（最後に見られた時間を記録）
 chrome.tabs.onActivated.addListener(activeInfo => {
-    trackTime(); // 前のタブの閲覧時間を記録
+    trackTime(); // 直前のタブの閲覧時間を記録
+
     activeTabId = activeInfo.tabId;
     startTime = Date.now();
-    
+
+    // タブが最後に見られた時間を記録
+    tabOpenTimes[activeTabId] = Date.now();
+    chrome.storage.local.set({ tabOpenTimes });
+
+    // タブのタイトルを記録
     chrome.tabs.get(activeTabId, tab => {
         if (chrome.runtime.lastError) {
             console.warn("Tab information could not be retrieved:", chrome.runtime.lastError.message);
             return;
         }
         tabTitles[activeTabId] = tab.title;
+        chrome.storage.local.set({ tabTitles });
     });
 });
 
@@ -33,6 +41,10 @@ chrome.windows.onFocusChanged.addListener(windowId => {
             if (tabs.length > 0) {
                 activeTabId = tabs[0].id;
                 startTime = Date.now();
+
+                // タブが最後に見られた時間を記録
+                tabOpenTimes[activeTabId] = Date.now();
+                chrome.storage.local.set({ tabOpenTimes });
             }
         });
     }
@@ -47,19 +59,21 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     }
     
     // タブの情報をローカルストレージから削除
-    delete tabTimes[tabId];
+    delete tabElapsedTimes[tabId];
     delete tabTitles[tabId];
-    chrome.storage.local.set({ tabTimes, tabTitles });
+    delete tabOpenTimes[tabId];
+
+    chrome.storage.local.set({ tabElapsedTimes, tabOpenTimes, tabTitles });
 });
 
-// タブの閲覧時間を記録
+// 閲覧時間の記録
 function trackTime() {
     if (activeTabId !== null && startTime !== 0) {
         const elapsedTime = Date.now() - startTime;
-        tabTimes[activeTabId] = (tabTimes[activeTabId] || 0) + elapsedTime;
-        chrome.storage.local.set({ tabTimes, tabTitles }, () => {
-            chrome.runtime.sendMessage({ action: "updateDashboard" });
-        });
+
+        tabElapsedTimes[activeTabId] = (tabElapsedTimes[activeTabId] || 0) + elapsedTime;
+        chrome.storage.local.set({ tabElapsedTimes });
+
         startTime = Date.now();
     }
 }
@@ -75,15 +89,15 @@ chrome.runtime.onStartup.addListener(() => {
 });
 
 // 閲覧時間順にタブをソート
-function sortTabsByTime() {
-    chrome.storage.local.get(["tabTimes"], data => {
-        const tabTimes = data.tabTimes || {};
+function sortByElapsedTimeRequest() {
+    chrome.storage.local.get(["tabElapsedTimes"], data => {
+        const tabElapsedTimes = data.tabElapsedTimes || {};
         
         chrome.tabs.query({}, tabs => {
             const openTabIds = tabs.map(tab => tab.id);
             
             // 閲覧時間が長い順にタブIDをソート
-            const sortedTabIds = Object.entries(tabTimes)
+            const sortedTabIds = Object.entries(tabElapsedTimes)
                 .sort((a, b) => b[1] - a[1])
                 .map(entry => parseInt(entry[0]))
                 .filter(tabId => openTabIds.includes(tabId));
@@ -96,10 +110,38 @@ function sortTabsByTime() {
     });
 }
 
+
+
+function sortByOpenTimeRequest() {
+    chrome.storage.local.get(["tabOpenTimes"], data => {
+        const tabOpenTimes = data.tabOpenTimes || {};
+
+        chrome.tabs.query({}, tabs => {
+            const openTabIds = tabs.map(tab => tab.id);
+            
+            // 開いた時間が新しい順にタブIDをソート
+            const sortedTabIds = Object.entries(tabOpenTimes)
+                .sort((a, b) => b[1] - a[1]) // 新しい順（降順）
+                .map(entry => parseInt(entry[0]))
+                .filter(tabId => openTabIds.includes(tabId));
+
+            console.log("開いた時間順のタブIDリスト:", sortedTabIds);
+            
+            // 並び替えのメッセージを送信
+            chrome.runtime.sendMessage({ action: "sortTabs", sortedTabIds });
+        });
+    });
+}
+
 // メッセージを受け取ってタブをソート
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === "sortTabsRequest") {
-        sortTabsByTime();
+    if (message.action === "sortByElapsedTimeRequest") {
+        sortByElapsedTimeRequest();
+    } else if (message.action === "sortByOpenTimeRequest") { // ✅ 開いた時間順のリクエスト処理
+        sortByOpenTimeRequest();
     }
 });
+
+
+
 
