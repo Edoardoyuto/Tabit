@@ -16,7 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     });
-  
+
+  document.getElementById("groupTabsButton").addEventListener("click", () => {
+        chrome.runtime.sendMessage({ action: "groupTabsAutomatically" });
+    });
+    
     // 開いた時間順ソート
     document.getElementById("sortByOpenTimeButton").addEventListener("click", () => {
       chrome.runtime.sendMessage({ action: "sortByOpenTimeRequest" }, (response) => {
