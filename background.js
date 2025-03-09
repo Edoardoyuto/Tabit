@@ -146,7 +146,7 @@ function sortTabsByTime() {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("メッセージ受信:", message);
 
-    if (message.action === "sortTabsRequest") {
+    if (message.action === "sortByElapsedTimeRequest") {
         console.log("ソートリクエストを処理中...");
         sortTabsByTime();
         sendResponse({ status: "ok" });
