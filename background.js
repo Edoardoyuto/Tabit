@@ -1,20 +1,28 @@
 let activeTabId = null;
-let tabTimes = {};
-let tabTitles = {};
+let tabElapsedTimes = {}; // タブの閲覧時間
+let tabOpenTimes = {}; // タブが最後に見られた時間
+let tabTitles = {}; 
 let startTime = 0;
 
-// タブがアクティブになったときの処理
+// タブがアクティブになったときの処理（最後に見られた時間を記録）
 chrome.tabs.onActivated.addListener(activeInfo => {
-    trackTime(); // 前のタブの閲覧時間を記録
+    trackTime(); // 直前のタブの閲覧時間を記録
+
     activeTabId = activeInfo.tabId;
     startTime = Date.now();
-    
+
+    // タブが最後に見られた時間を記録
+    tabOpenTimes[activeTabId] = Date.now();
+    chrome.storage.local.set({ tabOpenTimes });
+
+    // タブのタイトルを記録
     chrome.tabs.get(activeTabId, tab => {
         if (chrome.runtime.lastError) {
             console.warn("Tab information could not be retrieved:", chrome.runtime.lastError.message);
             return;
         }
         tabTitles[activeTabId] = tab.title;
+        chrome.storage.local.set({ tabTitles });
     });
 });
 
@@ -33,15 +41,14 @@ chrome.windows.onFocusChanged.addListener(windowId => {
             if (tabs.length > 0) {
                 activeTabId = tabs[0].id;
                 startTime = Date.now();
+
+                // タブが最後に見られた時間を記録
+                tabOpenTimes[activeTabId] = Date.now();
+                chrome.storage.local.set({ tabOpenTimes });
             }
         });
     }
 });
-
-// 1秒ごとに滞在時間を更新する
-setInterval(() => {
-    trackTime();
-}, 1000);
 
 // タブが閉じられたときの処理
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
@@ -52,24 +59,22 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     }
     
     // タブの情報をローカルストレージから削除
-    delete tabTimes[tabId];
+    delete tabElapsedTimes[tabId];
     delete tabTitles[tabId];
-    chrome.storage.local.set({ tabTimes, tabTitles });
+    delete tabOpenTimes[tabId];
+
+    chrome.storage.local.set({ tabElapsedTimes, tabOpenTimes, tabTitles });
 });
 
-// タブの閲覧時間を記録
+// 閲覧時間の記録
 function trackTime() {
     if (activeTabId !== null && startTime !== 0) {
         const elapsedTime = Date.now() - startTime;
-        tabTimes[activeTabId] = (tabTimes[activeTabId] || 0) + elapsedTime;
-        startTime = Date.now();
 
-        chrome.storage.local.set({ tabTimes, tabTitles }, () => {
-            console.log("滞在時間更新:", tabTimes); // デバッグ用
-            chrome.runtime.sendMessage({ action: "updateDashboard" }, () => {
-                console.log("updateDashboard メッセージ送信");
-            });
-        });
+        tabElapsedTimes[activeTabId] = (tabElapsedTimes[activeTabId] || 0) + elapsedTime;
+        chrome.storage.local.set({ tabElapsedTimes });
+
+        startTime = Date.now();
     }
 }
 
@@ -83,74 +88,70 @@ chrome.runtime.onStartup.addListener(() => {
     });
 });
 
-// 閲覧時間順にタブをソート
-function sortTabsByTime() {
-    console.log("ソートリクエスト受信 - タブを並び替えます");
+// 📌 **タブを並び替える関数**
+function moveTabsInOrder(sortedTabIds) {
+    console.log("📌 タブを並び替え中:", sortedTabIds);
 
-    chrome.storage.local.get(["tabTimes"], data => {
-        const tabTimes = data.tabTimes || {};
-
-        chrome.tabs.query({ currentWindow: true }, tabs => {
-            if (!tabs || tabs.length === 0) {
-                console.warn("開いているタブが見つかりません");
-                return;
+    sortedTabIds.forEach((tabId, index) => {
+        chrome.tabs.move(tabId, { index }, () => {
+            if (chrome.runtime.lastError) {
+                console.warn(`🚨 タブ移動エラー (${tabId}):`, chrome.runtime.lastError.message);
+            } else {
+                console.log(`✅ タブ ${tabId} を位置 ${index} に移動`);
             }
-
-            const openTabIds = tabs.map(tab => tab.id);
-
-            // 閲覧時間が長い順にタブIDをソート
-            const sortedTabIds = Object.entries(tabTimes)
-                .map(([tabId, time]) => [parseInt(tabId), time]) // 文字列のタブIDを数値に変換
-                .filter(([tabId, time]) => openTabIds.includes(tabId)) // 開いているタブのみ対象
-                .sort((a, b) => b[1] - a[1]) // 時間が長い順
-                .map(entry => entry[0]); // タブIDのリスト
-
-            console.log("ソート後のタブIDリスト:", sortedTabIds);
-
-            if (sortedTabIds.length === 0) {
-                console.warn("ソートするタブがありません");
-                return;
-            }
-
-            // タブの位置を一括で更新する（非同期処理を制御）
-            async function moveTabsInOrder() {
-                for (let i = 0; i < sortedTabIds.length; i++) {
-                    let tabId = sortedTabIds[i];
-                    try {
-                        await new Promise((resolve, reject) => {
-                            chrome.tabs.move(tabId, { index: i }, () => {
-                                if (chrome.runtime.lastError) {
-                                    console.warn(`タブ移動エラー (${tabId}):`, chrome.runtime.lastError.message);
-                                    reject(chrome.runtime.lastError);
-                                } else {
-                                    console.log(`タブ ${tabId} を位置 ${i} に移動`);
-                                    resolve();
-                                }
-                            });
-                        });
-                    } catch (error) {
-                        console.error(`タブ ${tabId} の移動に失敗しました`, error);
-                    }
-                }
-            }
-
-            moveTabsInOrder().then(() => {
-                console.log("全てのタブの並び替えが完了しました");
-                chrome.runtime.sendMessage({ action: "sortedTabs" });
-            });
         });
     });
 }
 
-// メッセージを受け取ってタブをソート
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("メッセージ受信:", message);
+// 📌 **閲覧時間順にタブをソート**
+function sortByElapsedTimeRequest() {
+    chrome.storage.local.get(["tabElapsedTimes"], data => {
+        const tabElapsedTimes = data.tabElapsedTimes || {};
+        
+        chrome.tabs.query({}, tabs => {
+            const openTabIds = tabs.map(tab => tab.id);
+            
+            // 閲覧時間が長い順にタブIDをソート
+            const sortedTabIds = Object.entries(tabElapsedTimes)
+                .sort((a, b) => b[1] - a[1])
+                .map(entry => parseInt(entry[0]))
+                .filter(tabId => openTabIds.includes(tabId));
 
+            console.log("📌 閲覧時間順のタブIDリスト:", sortedTabIds);
+            
+            // 📌 **新しく追加した関数でタブを並び替える**
+            moveTabsInOrder(sortedTabIds);
+        });
+    });
+}
+
+// 📌 **開いた時間順にタブをソート**
+function sortByOpenTimeRequest() {
+    chrome.storage.local.get(["tabOpenTimes"], data => {
+        const tabOpenTimes = data.tabOpenTimes || {};
+
+        chrome.tabs.query({}, tabs => {
+            const openTabIds = tabs.map(tab => tab.id);
+            
+            // 開いた時間が新しい順にタブIDをソート
+            const sortedTabIds = Object.entries(tabOpenTimes)
+                .sort((a, b) => b[1] - a[1]) // 新しい順（降順）
+                .map(entry => parseInt(entry[0]))
+                .filter(tabId => openTabIds.includes(tabId));
+
+            console.log("📌 開いた時間順のタブIDリスト:", sortedTabIds);
+            
+            // 📌 **新しく追加した関数でタブを並び替える**
+            moveTabsInOrder(sortedTabIds);
+        });
+    });
+}
+
+// 📌 **メッセージを受け取ってタブをソート**
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "sortByElapsedTimeRequest") {
-        console.log("ソートリクエストを処理中...");
-        sortTabsByTime();
-        sendResponse({ status: "ok" });
+        sortByElapsedTimeRequest();
+    } else if (message.action === "sortByOpenTimeRequest") { // ✅ 開いた時間順のリクエスト処理
+        sortByOpenTimeRequest();
     }
 });
-
-
