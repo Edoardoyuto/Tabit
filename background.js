@@ -85,14 +85,14 @@ chrome.runtime.onStartup.addListener(() => {
 
 // 閲覧時間順にタブをソート
 function sortTabsByTime() {
-    console.log("🛠 ソートリクエスト受信 - タブを並び替えます");
+    console.log("ソートリクエスト受信 - タブを並び替えます");
 
     chrome.storage.local.get(["tabTimes"], data => {
         const tabTimes = data.tabTimes || {};
 
         chrome.tabs.query({ currentWindow: true }, tabs => {
             if (!tabs || tabs.length === 0) {
-                console.warn("📌 開いているタブが見つかりません");
+                console.warn("開いているタブが見つかりません");
                 return;
             }
 
@@ -105,10 +105,10 @@ function sortTabsByTime() {
                 .sort((a, b) => b[1] - a[1]) // 時間が長い順
                 .map(entry => entry[0]); // タブIDのリスト
 
-            console.log("📌 ソート後のタブIDリスト:", sortedTabIds);
+            console.log("ソート後のタブIDリスト:", sortedTabIds);
 
             if (sortedTabIds.length === 0) {
-                console.warn("🚨 ソートするタブがありません");
+                console.warn("ソートするタブがありません");
                 return;
             }
 
@@ -120,22 +120,22 @@ function sortTabsByTime() {
                         await new Promise((resolve, reject) => {
                             chrome.tabs.move(tabId, { index: i }, () => {
                                 if (chrome.runtime.lastError) {
-                                    console.warn(`🚨 タブ移動エラー (${tabId}):`, chrome.runtime.lastError.message);
+                                    console.warn(`タブ移動エラー (${tabId}):`, chrome.runtime.lastError.message);
                                     reject(chrome.runtime.lastError);
                                 } else {
-                                    console.log(`✅ タブ ${tabId} を位置 ${i} に移動`);
+                                    console.log(`タブ ${tabId} を位置 ${i} に移動`);
                                     resolve();
                                 }
                             });
                         });
                     } catch (error) {
-                        console.error(`❌ タブ ${tabId} の移動に失敗しました`, error);
+                        console.error(`タブ ${tabId} の移動に失敗しました`, error);
                     }
                 }
             }
 
             moveTabsInOrder().then(() => {
-                console.log("✅ 全てのタブの並び替えが完了しました");
+                console.log("全てのタブの並び替えが完了しました");
                 chrome.runtime.sendMessage({ action: "sortedTabs" });
             });
         });
@@ -144,10 +144,10 @@ function sortTabsByTime() {
 
 // メッセージを受け取ってタブをソート
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("📩 メッセージ受信:", message);
+    console.log("メッセージ受信:", message);
 
     if (message.action === "sortTabsRequest") {
-        console.log("🛠 ソートリクエストを処理中...");
+        console.log("ソートリクエストを処理中...");
         sortTabsByTime();
         sendResponse({ status: "ok" });
     }
