@@ -1,51 +1,28 @@
-function updateDashboard() {
-    chrome.storage.local.get(["tabElapsedTimes", "tabTitles"], data => {
-        const timeTable = document.getElementById("timeTable");
-        timeTable.innerHTML = "";
-        let totalTime = 0;
-
-        for (let tabId in data.tabElapsedTimes) {
-            let time = data.tabElapsedTimes[tabId] / 1000;
-            totalTime += time;
-            let title = data.tabTitles[tabId] || `Tab ${tabId}`;
-            let row = document.createElement("tr");
-            row.innerHTML = `<td>${title}</td><td>${time.toFixed(1)}</td>`;
-            timeTable.appendChild(row);
-        }
-
-        console.log("✅ ダッシュボード更新:", new Date().toLocaleTimeString());
-    });
-}
-
-
-// メッセージが来たらダッシュボードを更新
-chrome.runtime.onMessage.addListener((message) => {
-    if (message.action === "updateDashboard") {
-        console.log("📩 updateDashboard メッセージ受信");
-        updateDashboard();
-    }
-});
-
-// 初回表示 & 1秒ごとの更新ループ
 document.addEventListener("DOMContentLoaded", () => {
     updateDashboard();
     setInterval(updateDashboard, 1000);
 
-    // ソートボタンのイベントリスナーを `DOMContentLoaded` 内で設定
-    const sortButton = document.getElementById("sortButton");
-    if (sortButton) {
-        sortButton.addEventListener("click", () => {
-            console.log("🔘 ソートボタンが押されました");
+    document.getElementById("sortByElapsedTimeButton").addEventListener("click", () => {
+        chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" });
+    });
 
-            chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, response => {
-                if (chrome.runtime.lastError) {
-                    console.error("🚨 メッセージ送信エラー:", chrome.runtime.lastError.message);
-                } else {
-                    console.log("✅ メッセージ送信成功", response);
-                }
-            });
-        });
-    } else {
-        console.error("🚨 ソートボタンが見つかりませんでした！");
-    }
+    document.getElementById("sortByOpenTimeButton").addEventListener("click", () => {
+        chrome.runtime.sendMessage({ action: "sortByOpenTimeRequest" });
+    });
 });
+
+function updateDashboard() {
+    chrome.storage.local.get(["tabElapsedTimes", "tabOpenTimes", "tabTitles"], data => {
+        const timeTable = document.getElementById("timeTable");
+        timeTable.innerHTML = "";
+
+        const tabElapsedTimes = data.tabElapsedTimes || {};
+        const tabOpenTimes = data.tabOpenTimes || {};
+        const tabTitles = data.tabTitles || {};
+
+        for (let tabId in tabElapsedTimes) {
+            let openTime = tabOpenTimes[tabId] ? new Date(tabOpenTimes[tabId]).toLocaleString() : "N/A";
+            timeTable.innerHTML += `<tr><td>${tabTitles[tabId] || `Tab ${tabId}`}</td><td>${(tabElapsedTimes[tabId] / 1000).toFixed(1)}</td><td>${openTime}</td></tr>`;
+        }
+    });
+}
