@@ -39,6 +39,7 @@
 <body>
     <h1>閲覧時間ダッシュボード</h1>
     <button id="sortButton">時間でソート</button>
+    <button id="groupTabsAutoGPT">AI でタブを自動グループ化</button>
     <table>
         <thead>
             <tr>
@@ -60,6 +61,12 @@
                     chrome.runtime.sendMessage({ action: "updateDashboard" });
                 }, 1000);
             });
+        });
+
+         // 🔹 AI グループ化ボタンのイベントリスナー
+        document.getElementById("groupTabsAutoGPT").addEventListener("click", () => {
+            chrome.runtime.sendMessage({ action: "groupTabsAutoGPT" });
+            console.log("🔹 AI グループ化リクエスト送信");
         });
     </script>
 </body>
