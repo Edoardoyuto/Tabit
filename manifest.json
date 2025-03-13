@@ -34,6 +34,12 @@
         "default": "Ctrl+Shift+3"
       },
       "description": "すべてのタブをURL＆タイトルの両方で自動分類"
+    },
+    "ungroup_tabs": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+4"
+      },
+      "description": "すべてのタブのグループを解除"
     }
   }
 }
