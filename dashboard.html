@@ -9,121 +9,134 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 </head>
 <body>
-  <h1>Tabit</h1>
 
-  <!-- 表示切替用ボタン -->
-  
+    <!-- 表示切替用ボタン -->
 
-  <div class="items">
-    <div class="item item01" id="sortByElapsedTimeButton" role="button" tabindex="0">
-      <span class="material-symbols-outlined">
-        sort
-      </span>
-      <p class="buttonText">閲覧時間順</p>
-    </div>
-    <div class="item item02" id="sortByOpenTimeButton" role="button" tabindex="0">
-      <span class="material-symbols-outlined">
-        tab_recent
-      </span>
-      <p class="buttonText">開いた時刻順</p>
-    </div>
-    <div class="item item03" id="groupTabsButton" role="button" tabindex="0">
-      <span class="material-symbols-outlined">
-        category
-      </span>
-      <p class="buttonText">グループ化</p>
-    </div>
-    <div class="item item04" id="ungroupTabsButton" role="button" tabindex="0">
-      <span class="material-symbols-outlined">
-        hide_source
-      </span>
-      <p class="buttonText">グループ化解除</p>
-    </div>
-  </div>
-
-  
-
-  <!-- 優先URL設定部分（入力部は常時表示、一覧部分のみ非表示） -->
-  <div class="priority-section">
-    <h2>優先URL設定</h2>
-    <div class="input-group">
-      <input type="text" placeholder="text URL" id="priorityUrlInput">
-      <button id="addPriorityUrlButton">追加</button>
-    </div>
-    
-    <select id="tabListDropdown">
-      <option value="">タブを選択</option>
-    </select>
-    <button id="addFromTabsButton">追加</button>
-
-    <!-- 優先URL一覧部分 -->
-    
-
-    <div class="view-buttons">
-      <button id="toggleTabListButton">タブ一覧表示/非表示</button>
-      <button id="togglePriorityUrlButton">優先URL一覧表示/非表示</button>
+    <div class="header-container">
+        <h1>Tabit</h1>
+        <div class="shortcut-info">
+            <ul>
+                <li><strong>Ctrl + Shift + 1</strong> - 閲覧時間順にタブをソート</li>
+                <li><strong>Ctrl + Shift + 2</strong> - 開いた順番にタブをソート</li>
+                <li><strong>Ctrl + Shift + 3</strong> - タブを自動分類してグループ化</li>
+                <li><strong>Ctrl + Shift + 4</strong> - タブのグループを解除</li>
+            </ul>
+        </div>
     </div>
 
-    <div id="priorityUrlContainer" style="display: none;">
-      <h3>優先URL一覧</h3>
-      <ul id="priorityUrlList"></ul>
+
+
+
+    <div class="items">
+        <div class="item item01" id="sortByElapsedTimeButton" role="button" tabindex="0">
+            <span class="material-symbols-outlined">
+                sort
+            </span>
+            <p class="buttonText">閲覧時間順</p>
+        </div>
+        <div class="item item02" id="sortByOpenTimeButton" role="button" tabindex="0">
+            <span class="material-symbols-outlined">
+                tab_recent
+            </span>
+            <p class="buttonText">開いた時刻順</p>
+        </div>
+        <div class="item item03" id="groupTabsButton" role="button" tabindex="0">
+            <span class="material-symbols-outlined">
+                category
+            </span>
+            <p class="buttonText">グループ化</p>
+        </div>
+        <div class="item item04" id="ungroupTabsButton" role="button" tabindex="0">
+            <span class="material-symbols-outlined">
+                hide_source
+            </span>
+            <p class="buttonText">グループ化解除</p>
+        </div>
     </div>
 
-    <!-- タブ一覧部分（初期は非表示） -->
-    <div id="tabListContainer" style="display: none;">
-      <h2>タブ一覧</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>タブ名</th>
-            <th>閲覧時間 (秒)</th>
-            <th>開いた時間</th>
-          </tr>
-        </thead>
-        <tbody id="timeTable"></tbody>
-      </table>
+
+
+    <!-- 優先URL設定部分（入力部は常時表示、一覧部分のみ非表示） -->
+    <div class="priority-section">
+        <h2>優先URL設定</h2>
+        <div class="input-group">
+            <input type="text" placeholder="text URL" id="priorityUrlInput">
+            <button id="addPriorityUrlButton">追加</button>
+        </div>
+
+        <select id="tabListDropdown">
+            <option value="">タブを選択</option>
+        </select>
+        <button id="addFromTabsButton">追加</button>
+
+        <!-- 優先URL一覧部分 -->
+
+
+        <div class="view-buttons">
+            <button id="toggleTabListButton">タブ一覧表示/非表示</button>
+            <button id="togglePriorityUrlButton">優先URL一覧表示/非表示</button>
+        </div>
+
+        <div id="priorityUrlContainer" style="display: none;">
+            <h3>優先URL一覧</h3>
+            <ul id="priorityUrlList"></ul>
+        </div>
+
+        <!-- タブ一覧部分（初期は非表示） -->
+        <div id="tabListContainer" style="display: none;">
+            <h2>タブ一覧</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>タブ名</th>
+                        <th>閲覧時間 (秒)</th>
+                        <th>開いた時間</th>
+                    </tr>
+                </thead>
+                <tbody id="timeTable"></tbody>
+            </table>
+        </div>
+
     </div>
 
-  </div>
-
-  <script>
-    // 既存の各種イベントリスナー（ソート、グループ化など）のコードはそのまま
-    document.getElementById("sortByElapsedTimeButton").addEventListener("click", () => {
-      chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, () => {
-        console.log("ソートリクエスト送信完了");
-        setTimeout(() => {
-          console.log("ソート後にダッシュボード更新");
-          chrome.runtime.sendMessage({ action: "updateDashboard" });
-        }, 1000);
-      });
-    });
-    document.getElementById("sortByOpenTimeButton").addEventListener("click", () => {
-      chrome.runtime.sendMessage({ action: "sortByOpenTimeRequest" }, () => {
-        console.log("ソートリクエスト送信完了");
-        setTimeout(() => {
-          console.log("ソート後にダッシュボード更新");
-          chrome.runtime.sendMessage({ action: "updateDashboard" });
-        }, 1000);
-      });
-    });
-    document.getElementById("groupTabsButton").addEventListener("click", () => {
-      chrome.runtime.sendMessage({ action: "groupTabsAutomatically" }, () => {
-        console.log("タブグループ化リクエスト送信完了");
-        setTimeout(() => {
-          console.log("グループ化後にダッシュボード更新");
-          chrome.runtime.sendMessage({ action: "updateDashboard" });
-        }, 1000);
-      });
-    });
-    document.getElementById("ungroupTabsButton").addEventListener("click", () => {
-      chrome.runtime.sendMessage({ action: "ungroupTabs" }, () => {
-        console.log("タブグループ解除リクエスト送信完了");
-        setTimeout(() => {
-          console.log("グループ化解除後にダッシュボード更新");
-          chrome.runtime.sendMessage({ action: "updateDashboard" });
-        }, 1000);
-      });
-    });
-  </script>
+    <script>
+        // 既存の各種イベントリスナー（ソート、グループ化など）のコードはそのまま
+        document.getElementById("sortByElapsedTimeButton").addEventListener("click", () => {
+            chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, () => {
+                console.log("ソートリクエスト送信完了");
+                setTimeout(() => {
+                    console.log("ソート後にダッシュボード更新");
+                    chrome.runtime.sendMessage({ action: "updateDashboard" });
+                }, 1000);
+            });
+        });
+        document.getElementById("sortByOpenTimeButton").addEventListener("click", () => {
+            chrome.runtime.sendMessage({ action: "sortByOpenTimeRequest" }, () => {
+                console.log("ソートリクエスト送信完了");
+                setTimeout(() => {
+                    console.log("ソート後にダッシュボード更新");
+                    chrome.runtime.sendMessage({ action: "updateDashboard" });
+                }, 1000);
+            });
+        });
+        document.getElementById("groupTabsButton").addEventListener("click", () => {
+            chrome.runtime.sendMessage({ action: "groupTabsAutomatically" }, () => {
+                console.log("タブグループ化リクエスト送信完了");
+                setTimeout(() => {
+                    console.log("グループ化後にダッシュボード更新");
+                    chrome.runtime.sendMessage({ action: "updateDashboard" });
+                }, 1000);
+            });
+        });
+        document.getElementById("ungroupTabsButton").addEventListener("click", () => {
+            chrome.runtime.sendMessage({ action: "ungroupTabs" }, () => {
+                console.log("タブグループ解除リクエスト送信完了");
+                setTimeout(() => {
+                    console.log("グループ化解除後にダッシュボード更新");
+                    chrome.runtime.sendMessage({ action: "updateDashboard" });
+                }, 1000);
+            });
+        });
+    </script>
 </body>
 </html>
