@@ -15,7 +15,7 @@ chrome.runtime.onStartup.addListener(() => {
   });
 });
 
-// 拡張機能がインストール・更新されたときに呼ばれる
+/* 拡張機能がインストール・更新されたときに呼ばれる
 chrome.runtime.onInstalled.addListener(() => {
   chrome.windows.create({
     url: "dashboard.html",
@@ -24,6 +24,8 @@ chrome.runtime.onInstalled.addListener(() => {
     height: 400
   });
 });
+*/
+
 
 /**
  * ▼▼▼ メッセージリスナー (一本化) ▼▼▼
@@ -63,26 +65,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
  * - タブのタイトルを記録
  */
 chrome.tabs.onActivated.addListener(activeInfo => {
-  trackTime(); // 直前のタブの閲覧時間を更新
-
-  activeTabId = activeInfo.tabId;
-  startTime = Date.now();
-
-  // タブの開いた(アクティブになった)時間を記録
-  tabOpenTimes[activeTabId] = Date.now();
-  chrome.storage.local.set({ tabOpenTimes });
-
-  // タブのタイトルを取得
-  chrome.tabs.get(activeTabId, tab => {
-    if (chrome.runtime.lastError) {
-      console.warn("Tab情報を取得できませんでした:", chrome.runtime.lastError.message);
+  chrome.tabs.get(activeInfo.tabId, tab => {
+    if (tab && tab.url && tab.url.includes("dashboard.html")) {
+      console.log("Dashboard タブがアクティブなので、trackTime などの処理をスルーします。");
       return;
     }
-    tabTitles[activeTabId] = tab.title;
-    chrome.storage.local.set({ tabTitles });
+    
+    // dashboard 以外のタブの場合のみ処理を実行
+    trackTime(); // 直前のタブの閲覧時間を更新
+
+    activeTabId = activeInfo.tabId;
+    startTime = Date.now();
+
+    // タブの開いた(アクティブになった)時間を記録
+    tabOpenTimes[activeTabId] = Date.now();
+    chrome.storage.local.set({ tabOpenTimes });
+
+    // タブのタイトルを取得して保存
+    setTimeout(()=>{
+      tabTitles[activeTabId] = tab.title;
+      chrome.storage.local.set({ tabTitles });
+    },100);
   });
 });
-
 /**
  * ウィンドウのフォーカスが変わったとき
  * - フォーカスが外れた時点で前タブの時間を確定
