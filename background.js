@@ -60,6 +60,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+chrome.tabs.onMoved.addListener(() => {
+    chrome.runtime.sendMessage({ action: "updateDashboard" });
+});
+
+chrome.tabGroups.onMoved.addListener(() => {
+    chrome.runtime.sendMessage({ action: "updateDashboard" });
+});
+
 /**
  * タブがアクティブになったときの処理
  * - 直前のタブの閲覧時間を確定
