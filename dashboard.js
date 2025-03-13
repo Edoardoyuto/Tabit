@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     // 定期的にダッシュボードを更新
     updateDashboard();
-    setInterval(updateDashboard, 1000);
+    setInterval(updateTimeOnly, 1000); // 1秒ごとに滞在時間のみ更新
+
   
     // 優先URLリストを読み込む
     loadPriorityUrls();
@@ -81,7 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const openTimeTd = document.createElement("td");
   
         titleTd.textContent = titles[tabId] || "(No Title)";
-        timeTd.textContent = (elapsedTimes[tabId] / 1000).toFixed(1); // 秒表示
+        timeTd.id = `time-${tabId}`; // 滞在時間用のIDを設定
+
         if (openTimes[tabId]) {
           const dateObj = new Date(openTimes[tabId]);
           openTimeTd.textContent = dateObj.toLocaleTimeString();
@@ -94,8 +96,46 @@ document.addEventListener("DOMContentLoaded", () => {
         tr.appendChild(openTimeTd);
         tableBody.appendChild(tr);
       });
+        updateTimeOnly(); // 初回の滞在時間更新
     });
-  }
+}
+
+// **1秒ごとに滞在時間のみ更新**
+function updateTimeOnly() {
+    chrome.storage.local.get(["tabElapsedTimes"], data => {
+        let elapsedTimes = data.tabElapsedTimes || {}; // ストレージから取得
+        const currentTime = Date.now();
+
+        // 現在のアクティブタブを取得（非同期処理の中で実行）
+        chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+            const activeTabId = tabs.length > 0 ? tabs[0].id.toString() : null;
+
+            let updated = false; // ストレージ更新判定
+
+            Object.keys(elapsedTimes).forEach(tabId => {
+                const timeTd = document.getElementById(`time-${tabId}`);
+
+                if (timeTd) {
+                    // **滞在時間を更新**
+                    let elapsedTime = elapsedTimes[tabId] || 0;
+                    if (tabId === activeTabId) {
+                        elapsedTime += 1000; // 1秒増やす
+                        elapsedTimes[tabId] = elapsedTime; // データを更新
+                        updated = true;
+                    }
+                    timeTd.textContent = Math.floor(elapsedTime / 1000) + " 秒";
+                }
+            });
+
+            // **変更があった場合のみストレージに保存**
+            if (updated) {
+                chrome.storage.local.set({ tabElapsedTimes: elapsedTimes }, () => {
+                    console.log("✅ 滞在時間を更新しました:", elapsedTimes);
+                });
+            }
+        });
+    });
+}
   
   // 優先URLリストを読み込んで表示
   function loadPriorityUrls() {
