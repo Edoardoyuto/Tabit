@@ -5,99 +5,114 @@
   <title>Tabit</title>
   <link rel="stylesheet" href="dashboard.css">
   <script src="dashboard.js"></script>
+  <!-- Material Symbols Outlined のフルセットを読み込む -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 </head>
 <body>
-    <h1>Tabit</h1>
+  <h1>Tabit</h1>
 
-    <div class="items">
-        <div class="item item01" id="sortByElapsedTimeButton" role="button" tabindex="0">
-            <p class="buttonText">閲覧時間順</p>
-        </div>
-        <div class="item item02" id="sortByOpenTimeButton" role="button" tabindex="0">
-            <p class="buttonText">開いた時刻順</p>
-        </div>
-        <div class="item item03" id="groupTabsButton" role="button" tabindex="0">
-            <p class="buttonText">グループ化</p>
-        </div>
-        <div class="item item04" id="ungroupTabsButton" role="button" tabindex="0">
-            <p class="buttonText">グループ化解除</p>
-        </div>
+  <div class="items">
+    <div class="item item01" id="sortByElapsedTimeButton" role="button" tabindex="0">
+      <span class="material-symbols-outlined">
+        sort
+      </span>
+      <p class="buttonText">閲覧時間順</p>
     </div>
-
-    <div>
-        <h2>タブ一覧</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>タブ名</th>
-                    <th>閲覧時間 (秒)</th>
-                    <th>開いた時間</th>
-                </tr>
-            </thead>
-            <tbody id="timeTable"></tbody>
-        </table>
+    <div class="item item02" id="sortByOpenTimeButton" role="button" tabindex="0">
+      <span class="material-symbols-outlined">
+        tab_recent
+      </span>
+      <p class="buttonText">開いた時刻順</p>
     </div>
+    <div class="item item03" id="groupTabsButton" role="button" tabindex="0">
+      <span class="material-symbols-outlined">
+        category
+      </span>
+      <p class="buttonText">グループ化</p>
+    </div>
+    <div class="item item04" id="ungroupTabsButton" role="button" tabindex="0">
+      <span class="material-symbols-outlined">
+        hide_source
+      </span>
+      <p class="buttonText">グループ化解除</p>
+    </div>
+  </div>
 
-    <div class="priority-section">
-        <h2>優先URL設定</h2>
-        <label>手入力: <input type="text" id="priorityUrlInput"></label>
-        <button id="addPriorityUrlButton">追加</button>
+  <div>
+    <h2>タブ一覧</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>タブ名</th>
+          <th>閲覧時間 (秒)</th>
+          <th>開いた時間</th>
+        </tr>
+      </thead>
+      <tbody id="timeTable"></tbody>
+    </table>
+  </div>
 
-        <h3>開いているタブから選択</h3>
-        <select id="tabListDropdown">
-            <option value="">タブを選択</option>
+  <div class="priority-section">
+    <h2>優先URL設定</h2>
+        <div class="input-group">
+            <input type="text" placeholder="text URL" id="priorityUrlInput">
+            <button id="addPriorityUrlButton">追加</button>
+    </div>
+    
+    <select id="tabListDropdown">
+        <option value="">タブを選択</option>
         </select>
-        <button id="addFromTabsButton">追加</button>
+    <button id="addFromTabsButton">追加</button>
 
-        <h3>優先URL一覧</h3>
-        <ul id="priorityUrlList"></ul>
-    </div>
+  <h3>優先URL一覧</h3>
+    <ul id="priorityUrlList"></ul>
+</div>
 
-    <script>
-        document.getElementById("sortByElapsedTimeButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, () => {
-                console.log("ソートリクエスト送信完了");
+  <script>
+    document.getElementById("sortByElapsedTimeButton").addEventListener("click", () => {
+      chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, () => {
+        console.log("ソートリクエスト送信完了");
 
-                // ソート後に手動でダッシュボード更新
-                setTimeout(() => {
-                    console.log("ソート後にダッシュボード更新");
-                    chrome.runtime.sendMessage({ action: "updateDashboard" });
-                }, 1000);
-            });
-        });
-        document.getElementById("sortByOpenTimeButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "sortByOpenTimeRequest" }, () => {
-                console.log("ソートリクエスト送信完了");
+        // ソート後に手動でダッシュボード更新
+        setTimeout(() => {
+          console.log("ソート後にダッシュボード更新");
+          chrome.runtime.sendMessage({ action: "updateDashboard" });
+        }, 1000);
+      });
+    });
+    document.getElementById("sortByOpenTimeButton").addEventListener("click", () => {
+      chrome.runtime.sendMessage({ action: "sortByOpenTimeRequest" }, () => {
+        console.log("ソートリクエスト送信完了");
 
-                // ソート後に手動でダッシュボード更新
-                setTimeout(() => {
-                    console.log("ソート後にダッシュボード更新");
-                    chrome.runtime.sendMessage({ action: "updateDashboard" });
-                }, 1000);
-            });
-        });
-        document.getElementById("groupTabsButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "groupTabsAutomatically" }, () => {
-                console.log("タブグループ化リクエスト送信完了");
+        // ソート後に手動でダッシュボード更新
+        setTimeout(() => {
+          console.log("ソート後にダッシュボード更新");
+          chrome.runtime.sendMessage({ action: "updateDashboard" });
+        }, 1000);
+      });
+    });
+    document.getElementById("groupTabsButton").addEventListener("click", () => {
+      chrome.runtime.sendMessage({ action: "groupTabsAutomatically" }, () => {
+        console.log("タブグループ化リクエスト送信完了");
 
-                // グループ化後に手動でダッシュボード更新
-                setTimeout(() => {
-                    console.log("グループ化後にダッシュボード更新");
-                    chrome.runtime.sendMessage({ action: "updateDashboard" });
-                }, 1000);
-            });
-        });
-        document.getElementById("ungroupTabsButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "ungroupTabs" }, () => {
-                console.log("タブグループ解除リクエスト送信完了");
+        // グループ化後に手動でダッシュボード更新
+        setTimeout(() => {
+          console.log("グループ化後にダッシュボード更新");
+          chrome.runtime.sendMessage({ action: "updateDashboard" });
+        }, 1000);
+      });
+    });
+    document.getElementById("ungroupTabsButton").addEventListener("click", () => {
+      chrome.runtime.sendMessage({ action: "ungroupTabs" }, () => {
+        console.log("タブグループ解除リクエスト送信完了");
 
-                // グループ化後に手動でダッシュボード更新
-                setTimeout(() => {
-                    console.log("グループ化解除後にダッシュボード更新");
-                    chrome.runtime.sendMessage({ action: "updateDashboard" });
-                }, 1000);
-            });
-        });
-    </script>
+        // グループ化解除後に手動でダッシュボード更新
+        setTimeout(() => {
+          console.log("グループ化解除後にダッシュボード更新");
+          chrome.runtime.sendMessage({ action: "updateDashboard" });
+        }, 1000);
+      });
+    });
+  </script>
 </body>
 </html>
