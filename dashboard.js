@@ -122,8 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const timeTd = document.createElement("td");
         const openTimeTd = document.createElement("td");
   
-        titleTd.textContent = titles[tabId] || "(No Title)";
-        timeTd.id = `time-${tabId}`; // 滞在時間用のIDを設定
+          titleTd.textContent = titles[tabId] || "(No Title)";
+
+          timeTd.id = `time-${tabId}`; // 滞在時間用のIDを設定
+          timeTd.textContent = formatTime(elapsedTimes[tabId] || 0);
 
         if (openTimes[tabId]) {
           const dateObj = new Date(openTimes[tabId]);
@@ -139,6 +141,22 @@ document.addEventListener("DOMContentLoaded", () => {
       });
         updateTimeOnly(); // 初回の滞在時間更新
     });
+}
+
+// 時間をフォーマットする関数
+function formatTime(milliseconds) {
+    let totalSeconds = Math.floor(milliseconds / 1000);
+    let hours = Math.floor(totalSeconds / 3600);
+    let minutes = Math.floor((totalSeconds % 3600) / 60);
+    let seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+        return `${hours} 時間 ${minutes} 分`;
+    } else if (minutes > 0) {
+        return `${minutes} 分 ${seconds} 秒`;
+    } else {
+        return `${seconds} 秒`;
+    }
 }
 
 // **1秒ごとに滞在時間のみ更新**
@@ -164,14 +182,13 @@ function updateTimeOnly() {
                         elapsedTimes[tabId] = elapsedTime; // データを更新
                         updated = true;
                     }
-                    timeTd.textContent = Math.floor(elapsedTime / 1000) + " 秒";
+                    timeTd.textContent = formatTime(elapsedTime);
                 }
             });
 
             // **変更があった場合のみストレージに保存**
             if (updated) {
                 chrome.storage.local.set({ tabElapsedTimes: elapsedTimes }, () => {
-                    console.log("✅ 滞在時間を更新しました:", elapsedTimes);
                 });
             }
         });
