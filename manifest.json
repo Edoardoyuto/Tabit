@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Tab Time Tracker",
+  "name": "Tabit",
   "version": "1.7",
   "permissions": ["tabs", "storage", "tabGroups","activeTab"],
   "host_permissions": ["<all_urls>"], 
