@@ -54,6 +54,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === "groupTabsAutomatically") {
     groupTabsAutomatically();
     return;
+  } else if (message.action === "ungroupTabs") {
+      ungroupTabs();
+      return;
   }
 });
 
@@ -256,6 +259,22 @@ function sortByOpenTimeRequest() {
   });
 }
 
+function ungroupTabs() {
+    chrome.tabs.query({}, (tabs) => {
+        let groupedTabs = tabs.filter(tab => tab.groupId !== -1); // グループに属するタブのみ取得
+
+        groupedTabs.forEach(tab => {
+            chrome.tabs.ungroup(tab.id, () => {
+                if (chrome.runtime.lastError) {
+                    console.warn(`グループ解除エラー: ${chrome.runtime.lastError.message}`);
+                } else {
+                    console.log(`✅ タブ解除: ${tab.id}`);
+                }
+            });
+        });
+    });
+}
+
 chrome.commands.onCommand.addListener((command) => {
     if (command === "sort_tabs_by_time") {
         console.log("ショートカット1");
@@ -267,6 +286,9 @@ chrome.commands.onCommand.addListener((command) => {
     } else if (command === "group_tabs_automatically") {
         console.log("ショートカット3");
         groupTabsAutomatically();
+    } else if (command === "ungroup_tabs") {
+        console.log("ショートカット4");
+        ungroupTabs();
     }
 })
 
