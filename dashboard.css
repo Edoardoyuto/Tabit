@@ -7,7 +7,7 @@ body {
     background-color: #e0e0e0;
     font-family: "Yusei Magic", sans-serif;
   }
-  h1, h2 {
+   h1,h2 {
     text-align: center;
   }
   table {
@@ -189,3 +189,34 @@ body {
   .priority-section h2 {
     margin-top: 0;
   }
+
+.header-container {
+    display: flex;
+    align-items: center; /* 縦方向の中央揃え */
+    justify-content: center; /* 横方向の中央揃え */
+    gap: 20px; /* `Tabit` とショートカット一覧の間隔 */
+
+}
+
+.shortcut-info {
+    margin-left: 50px;
+    transform: translateX(185px);
+    transform: translateY(-10px);
+    height: 100px;
+    width: 280px;
+    background: #e0e0e0;
+    padding: 0.3rem; /* 余白を小さく */
+    border-radius: 10px;
+    box-shadow: 3px 3px 10px #bebebe, -3px -3px 10px #ffffff;
+}
+
+    .shortcut-info ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .shortcut-info li {
+        font-size: 12px;
+        line-height: 1; /* 縦の行間を最小限に */
+    }
