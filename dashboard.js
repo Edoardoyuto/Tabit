@@ -20,7 +20,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("groupTabsButton").addEventListener("click", () => {
         chrome.runtime.sendMessage({ action: "groupTabsAutomatically" });
+  });
+
+    document.getElementById("ungroupTabsButton").addEventListener("click", () => {
+        chrome.runtime.sendMessage({ action: "ungroupTabs" }, () => {
+            console.log("タブのグループ解除リクエスト送信完了");
+        });
     });
+
     
     // 開いた時間順ソート
     document.getElementById("sortByOpenTimeButton").addEventListener("click", () => {
