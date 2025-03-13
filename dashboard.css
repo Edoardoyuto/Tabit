@@ -5,6 +5,7 @@ body {
     padding: 20px;
     width: 500px;
     background-color: #e0e0e0;
+    font-family: "Yusei Magic", sans-serif;
   }
   h1, h2 {
     text-align: center;
@@ -33,7 +34,7 @@ body {
   .priority-section {
     background: #fff;
     padding: 10px;
-    margin-top: 20px;
+    margin-top: 10px;
     border: 1px solid #ccc;
   }
   ul {
@@ -91,7 +92,6 @@ body {
     margin: 0;
     font-size: 12px;
     color: #4169e1;
-    font-family: "Yusei Magic", sans-serif;
   }
 
   .priority-section{
@@ -160,4 +160,31 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 300px; /* 必要に応じて幅を調整してください */
+  }
+
+  #tabListContainer {
+    background: #e0e0e0;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffff;
+    border: none;
+    margin-top: 20px;
+  }
+  .view-buttons {
+    margin-top: 20px;  /* 上部余白を追加 */
+    margin-bottom: 10px; /* 下部余白も調整 */
+    text-align: center;
+  }
+
+  .priority-section {
+    background: #e0e0e0;
+    padding: 1rem 2rem 2rem; /* 上部は1rem、左右は2rem、下部は2rem */
+    border-radius: 20px;
+    box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffff;
+    border: none;
+  }
+  
+  /* 内部の見出しの上部余白をゼロにする */
+  .priority-section h2 {
+    margin-top: 0;
   }
