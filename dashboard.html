@@ -2,70 +2,26 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Tab Time Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      width: 500px;
-      background-color: #f4f4f4;
-    }
-    h1, h2 {
-      text-align: center;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background: blue;
-      color: white;
-      cursor: pointer;
-    }
-    button {
-      margin-bottom: 10px;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
-    .priority-section {
-      background: #fff;
-      padding: 10px;
-      margin-top: 20px;
-      border: 1px solid #ccc;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      margin-bottom: 5px;
-      background: #e0e0e0;
-      padding: 5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    li button {
-      margin-left: 10px;
-    }
-  </style>
+  <title>Tabit</title>
+  <link rel="stylesheet" href="dashboard.css">
   <script src="dashboard.js"></script>
 </head>
 <body>
-    <h1>閲覧時間ダッシュボード</h1>
+    <h1>Tabit</h1>
 
-    <div>
-        <button id="sortByElapsedTimeButton">閲覧時間でソート</button>
-        <button id="sortByOpenTimeButton">開いた時間順にソート</button>
-        <button id="groupTabsButton">タブをジャンルごとにグループ化</button>
-        <button id="ungroupTabsButton">グループ解除</button>
+    <div class="items">
+        <div class="item item01" id="sortByElapsedTimeButton" role="button" tabindex="0">
+            <p class="buttonText">閲覧時間順</p>
+        </div>
+        <div class="item item02" id="sortByOpenTimeButton" role="button" tabindex="0">
+            <p class="buttonText">開いた時刻順</p>
+        </div>
+        <div class="item item03" id="groupTabsButton" role="button" tabindex="0">
+            <p class="buttonText">グループ化</p>
+        </div>
+        <div class="item item04" id="ungroupTabsButton" role="button" tabindex="0">
+            <p class="buttonText">グループ化解除</p>
+        </div>
     </div>
 
     <div>
