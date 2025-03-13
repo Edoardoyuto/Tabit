@@ -2,11 +2,45 @@ document.addEventListener("DOMContentLoaded", () => {
     // 定期的にダッシュボードを更新
     updateDashboard();
     setInterval(updateTimeOnly, 1000); // 1秒ごとに滞在時間のみ更新
+    updateTabListDropdown();
 
   
     // 優先URLリストを読み込む
     loadPriorityUrls();
-  
+
+    // タブ一覧をドロップダウンに更新
+    function updateTabListDropdown() {
+        chrome.tabs.query({}, tabs => {
+            const dropdown = document.getElementById("tabListDropdown");
+            dropdown.innerHTML = '<option value="">タブを選択</option>';
+
+            tabs.forEach(tab => {
+                let option = document.createElement("option");
+                option.value = tab.url;
+                option.textContent = tab.title || tab.url;
+                dropdown.appendChild(option);
+            });
+        });
+    }
+
+    // 開いているタブから選択して優先URLに追加
+    document.getElementById("addFromTabsButton").addEventListener("click", () => {
+        const dropdown = document.getElementById("tabListDropdown");
+        const selectedUrl = dropdown.value;
+        if (selectedUrl) {
+            chrome.storage.local.get(["priorityUrls"], data => {
+                let urls = data.priorityUrls || [];
+                if (!urls.includes(selectedUrl)) {
+                    urls.push(selectedUrl);
+                    chrome.storage.local.set({ priorityUrls: urls }, () => {
+                        chrome.runtime.sendMessage({ action: "updatePriorityUrls", urls });
+                        loadPriorityUrls();
+                    });
+                }
+            });
+        }
+    });
+
     // 閲覧時間順ソート
     document.getElementById("sortByElapsedTimeButton").addEventListener("click", () => {
       chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, (response) => {
