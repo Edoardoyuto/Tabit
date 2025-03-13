@@ -325,17 +325,17 @@ function classifyTabByURL(url) {
     url.includes("shonenjumpplus") || url.includes("ebookjapan") || url.includes("bookwalker") || url.includes("comic-walker") || url.includes("pocket.shonenmagazine") || 
     url.includes("manga-mee") || url.includes("manga-shinchan") || url.includes("to-corona-ex") || url.includes("poki") || url.includes("famitsu") || url.includes("playhop") || 
     url.includes("mymd") || url.includes("play.ponta") || url.includes("fortnite") || url.includes("dengekionline") || url.includes("unext") || url.includes("video") || 
-    url.includes("movie-tsutaya") || url.includes("lemino") || url.includes("animestore") || url.includes("dmm") || url.includes("animehodai") || url.includes("watcha.com") || 
+    url.includes("movie-tsutaya") || url.includes("lemino") || url.includes("animestore") || url.includes("dmm.com") || url.includes("animehodai") || url.includes("watcha.com") || 
     url.includes("bs10") || url.includes("skyperfectv") || url.includes("wowow") || url.includes("mubi") || url.includes("hulu") || url.includes("telasa") || url.includes("prnhub") || 
     url.includes("missav") || url.includes("jable")  || url.includes("animefesta") || url.includes("recochoku") || url.includes("mora") || url.includes("spotify") || 
     url.includes("x.com") || url.includes("mtrl.tokyo") || url.includes("instagram") || url.includes("facebook")) {
         return "娯楽";
-    } else if (url.includes("shop") || url.includes("shopping") || url.includes("store") || url.includes("amazon") || url.includes("rakuten") || url.includes("mercari") || 
+    } else if (url.includes("shop") || url.includes("shopping") || url.includes("store") || url.includes("amazon.co.jp") || url.includes("rakuten.co.jp") || url.includes("mercari") || 
     url.includes("ebay") || url.includes("qoo10") || url.includes("shopping.yahoo") || url.includes("yodobashi") || url.includes("wowma") || url.includes("dmarket") || 
-    url.includes("dshopping") || url.includes("shop.hikaritv") || url.includes("zozo") || url.includes("shop-list") || url.includes("cecile") || url.includes("nissen") || 
+    url.includes("dshopping") || url.includes("shop.hikaritv") || url.includes("zozo.jp") || url.includes("shop-list") || url.includes("cecile") || url.includes("nissen") || 
     url.includes("belluna") || url.includes("bellemaison") || url.includes("dinos") || url.includes("kakaku") || url.includes("pokemoncenter-online") || url.includes("buyma") || 
     url.includes("cosmetic-times") || url.includes("tabechoku") || url.includes("lohaco") || url.includes("nitori-net") || url.includes("daisonet") || url.includes("low-ya") || 
-    url.includes("gladd") || url.includes("temu") || url.includes("workman.jp") || url.includes("monotaro") || url.includes("shopping.google") || url.includes("7net") || 
+    url.includes("gladd") || url.includes("temu.com") || url.includes("workman.jp") || url.includes("monotaro") || url.includes("shopping.google") || url.includes("7net") || 
     url.includes("tokyu-dept") || url.includes("edion.com") || url.includes("keionet") || url.includes("joshinweb") || url.includes("amicashop") || url.includes("sej.co") || 
     url.includes("voi.0101") || url.includes("family-town") || url.includes("cainz.com") || url.includes("daimaru-matsuzakaya") || url.includes("saiyasune") || url.includes("geo-online") || 
     url.includes("uni-jack")) {
