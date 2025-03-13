@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+JP&family=Yusei+Magic&display=swap');
+
 body {
     font-family: Arial, sans-serif;
     padding: 20px;
@@ -66,11 +68,15 @@ body {
     background: #e0e0e0;
     cursor: pointer;
   }
+  .item:hover{
+    transform: scale(1.25)
+  }
   
   .item01,
   .item02,
   .item03,
   .item04 {
+    color: #4169e1;
     border-radius: 15px;
     box-shadow: 10px 10px 30px #bebebe,
                 -10px -10px 30px #ffffff;
@@ -83,5 +89,75 @@ body {
     width: 100%;
     text-align: center;
     margin: 0;
+    font-size: 12px;
+    color: #4169e1;
+    font-family: "Yusei Magic", sans-serif;
+  }
+
+  .priority-section{
+    background: #e0e0e0;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 
+                10px 10px 30px #bebebe,
+                -10px -10px 30px #ffff;
+    border: none;
+  }
+
+  .input-group input[type="text"] {
+    /* Neumorphism風デザイン */
+    background: #e0e0e0;
+    border: none;
+    border-radius: 10px;
+    box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
+    
+    /* 高さ・行間などをボタンとそろえる */
+    font-size: 14px;      /* お好みで調整 */
+    line-height: 1;       /* 行間を統一 */
+    height: 40px;         /* 高さを固定すると揃いやすい */
+    padding: 0 15px;      /* 上下の余白を無くして中央揃えをしやすく */
+  }
+  
+
+  .input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 要素間の隙間を調整 */
+    margin-bottom: 1rem; /* 下部に余白を追加（必要に応じて） */
+  }
+
+  button {
+    margin-bottom: 10px;
+    padding: 10px 20px;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  button:active {
+    box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
+  }
+
+  #tabListDropdown {
+    background: #e0e0e0;
+    border: none;
+    border-radius: 10px;
+    box-shadow: inset 5px 5px 10px #bebebe, 
+                inset -5px -5px 10px #ffffff;
     font-size: 14px;
+    line-height: 1;
+    height: 40px;         /* input/buttonと揃える */
+    padding: 0 15px;      /* input/buttonと揃える */
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .priority-url-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px; /* 必要に応じて幅を調整してください */
   }
