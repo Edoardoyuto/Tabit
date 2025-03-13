@@ -1,0 +1,87 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    width: 500px;
+    background-color: #e0e0e0;
+  }
+  h1, h2 {
+    text-align: center;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    margin-top: 20px;
+  }
+  th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  th {
+    background: blue;
+    color: white;
+    cursor: pointer;
+  }
+  button {
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  .priority-section {
+    background: #fff;
+    padding: 10px;
+    margin-top: 20px;
+    border: 1px solid #ccc;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 5px;
+    background: #e0e0e0;
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  li button {
+    margin-left: 10px;
+  }
+  
+  .items {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+  }
+  
+  .item {
+    width: 100px;
+    height: 100px;
+    position: relative; /* 追加 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #e0e0e0;
+    cursor: pointer;
+  }
+  
+  .item01,
+  .item02,
+  .item03,
+  .item04 {
+    border-radius: 15px;
+    box-shadow: 10px 10px 30px #bebebe,
+                -10px -10px 30px #ffffff;
+  }
+
+  .buttonText{
+    position: absolute; /* 追加 */
+    bottom: 0;          /* 下端に配置 */
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin: 0;
+    font-size: 14px;
+  }
