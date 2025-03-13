@@ -59,38 +59,45 @@
   <script src="dashboard.js"></script>
 </head>
 <body>
-  <h1>閲覧時間ダッシュボード</h1>
-  
-  <div>
-      <button id="sortByElapsedTimeButton">閲覧時間でソート</button>
-      <button id="sortByOpenTimeButton">開いた時間順にソート</button>
-      <button id="groupTabsButton">タブをジャンルごとにグループ化</button>
-      <button id="ungroupTabsButton">グループ解除</button>
-  </div>
-  
-  <div class="priority-section">
-    <h2>優先URL設定</h2>
-    <label>優先URL: <input type="text" id="priorityUrlInput"></label>
-    <button id="addPriorityUrlButton">追加</button>
-    <h3>優先URL一覧</h3>
-    <ul id="priorityUrlList"></ul>
-  </div>
-  
-  <div>
-    <h2>タブ一覧</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>タブ名</th>
-          <th>閲覧時間 (秒)</th>
-          <th>開いた時間</th>
-        </tr>
-      </thead>
-      <tbody id="timeTable"></tbody>
-    </table>
-  </div>
-  
-   <script>
+    <h1>閲覧時間ダッシュボード</h1>
+
+    <div>
+        <button id="sortByElapsedTimeButton">閲覧時間でソート</button>
+        <button id="sortByOpenTimeButton">開いた時間順にソート</button>
+        <button id="groupTabsButton">タブをジャンルごとにグループ化</button>
+        <button id="ungroupTabsButton">グループ解除</button>
+    </div>
+
+    <div>
+        <h2>タブ一覧</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>タブ名</th>
+                    <th>閲覧時間 (秒)</th>
+                    <th>開いた時間</th>
+                </tr>
+            </thead>
+            <tbody id="timeTable"></tbody>
+        </table>
+    </div>
+
+    <div class="priority-section">
+        <h2>優先URL設定</h2>
+        <label>手入力: <input type="text" id="priorityUrlInput"></label>
+        <button id="addPriorityUrlButton">追加</button>
+
+        <h3>開いているタブから選択</h3>
+        <select id="tabListDropdown">
+            <option value="">タブを選択</option>
+        </select>
+        <button id="addFromTabsButton">追加</button>
+
+        <h3>優先URL一覧</h3>
+        <ul id="priorityUrlList"></ul>
+    </div>
+
+    <script>
         document.getElementById("sortByElapsedTimeButton").addEventListener("click", () => {
             chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, () => {
                 console.log("ソートリクエスト送信完了");
@@ -124,17 +131,17 @@
                 }, 1000);
             });
         });
-       document.getElementById("ungroupTabsButton").addEventListener("click", () => {
-           chrome.runtime.sendMessage({ action: "ungroupTabs" }, () => {
-               console.log("タブグループ解除リクエスト送信完了");
+        document.getElementById("ungroupTabsButton").addEventListener("click", () => {
+            chrome.runtime.sendMessage({ action: "ungroupTabs" }, () => {
+                console.log("タブグループ解除リクエスト送信完了");
 
-               // グループ化後に手動でダッシュボード更新
-               setTimeout(() => {
-                   console.log("グループ化解除後にダッシュボード更新");
-                   chrome.runtime.sendMessage({ action: "updateDashboard" });
-               }, 1000);
-           });
-       });
+                // グループ化後に手動でダッシュボード更新
+                setTimeout(() => {
+                    console.log("グループ化解除後にダッシュボード更新");
+                    chrome.runtime.sendMessage({ action: "updateDashboard" });
+                }, 1000);
+            });
+        });
     </script>
 </body>
 </html>
