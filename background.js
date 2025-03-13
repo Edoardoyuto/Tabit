@@ -280,10 +280,12 @@ function ungroupTabs() {
 chrome.commands.onCommand.addListener((command) => {
     if (command === "sort_tabs_by_time") {
         console.log("ショートカット1");
+      ungroupTabs();
         sortByElapsedTimeRequest();
     }
     else if (command === "sort_tabs_by_open") {
         console.log("ショートカット2");
+      ungroupTabs();
         sortByOpenTimeRequest();
     } else if (command === "group_tabs_automatically") {
         console.log("ショートカット3");
