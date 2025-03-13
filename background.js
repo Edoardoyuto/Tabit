@@ -311,10 +311,14 @@ const searchEngines = [
 
 function classifyTabByURL(url) {
     if (url.includes("work") || url.includes("docs") || url.includes("notion") || url.includes("slack.com") || url.includes("github.com") || url.includes("scrapbox.io") || 
-    url.includes("co")) {
+    url.includes("co") || url.includes("mtrl.com") || url.includes("career") || url.includes("geekly") || url.includes("r-agent") || url.includes("doda") || url.includes("miidas") || 
+    url.includes("tenshoku") || url.includes("directscout") || url.includes("next.rikunabi") || url.includes("speakerdeck") || url.includes("slideshare") || url.includes("undraw") || 
+    url.includes("freepick") || url.includes("soco-st") || url.includes("loosedrawing") || url.includes("isometric") || url.includes("tech-pic") || url.includes("manypixels") || 
+    url.includes("simpc") || url.includes("prezi")) {
         return "仕事";
     } else if (url.includes("news") || url.includes("nikkei") || url.includes("asahi.com") || url.includes("bbc") || url.includes("mainichi") || url.includes("sankei") || 
-    url.includes("jiji") || url.includes("yomiuri") || url.includes("reuters") || url.includes("cnn") || url.includes("afpbb") || url.includes("meti")) {
+    url.includes("jiji") || url.includes("yomiuri") || url.includes("reuters") || url.includes("cnn") || url.includes("afpbb") || url.includes("meti") || url.includes("co-media") || 
+    url.includes("waseda-ad") || url.includes("unigirls") || url.includes("cultureuniversitytokyo") || url.includes("pando") || url.includes("majime-zine") || url.includes("okanechips")) {
         return "報道";
     } else if (url.includes("comic") || url.includes("game") || url.includes("anime") || url.includes("video") || url.includes("tv") || url.includes("music") || 
     url.includes("travel") || url.includes("youtube") || url.includes("netflix") || url.includes("twitch.tv") || url.includes("disneyplus") || url.includes("cmoa") || 
@@ -324,7 +328,7 @@ function classifyTabByURL(url) {
     url.includes("movie-tsutaya") || url.includes("lemino") || url.includes("animestore") || url.includes("dmm") || url.includes("animehodai") || url.includes("watcha.com") || 
     url.includes("bs10") || url.includes("skyperfectv") || url.includes("wowow") || url.includes("mubi") || url.includes("hulu") || url.includes("telasa") || url.includes("prnhub") || 
     url.includes("missav") || url.includes("jable")  || url.includes("animefesta") || url.includes("recochoku") || url.includes("mora") || url.includes("spotify") || 
-    url.includes("x.com")) {
+    url.includes("x.com") || url.includes("mtrl.tokyo") || url.includes("instagram") || url.includes("facebook")) {
         return "娯楽";
     } else if (url.includes("shop") || url.includes("shopping") || url.includes("store") || url.includes("amazon") || url.includes("rakuten") || url.includes("mercari") || 
     url.includes("ebay") || url.includes("qoo10") || url.includes("shopping.yahoo") || url.includes("yodobashi") || url.includes("wowma") || url.includes("dmarket") || 
@@ -333,23 +337,23 @@ function classifyTabByURL(url) {
     url.includes("cosmetic-times") || url.includes("tabechoku") || url.includes("lohaco") || url.includes("nitori-net") || url.includes("daisonet") || url.includes("low-ya") || 
     url.includes("gladd") || url.includes("temu") || url.includes("workman.jp") || url.includes("monotaro") || url.includes("shopping.google") || url.includes("7net") || 
     url.includes("tokyu-dept") || url.includes("edion.com") || url.includes("keionet") || url.includes("joshinweb") || url.includes("amicashop") || url.includes("sej") || 
-    url.includes("voi") || url.includes("family-town") || url.includes("cainz.com") || url.includes("daimaru-matsuzakaya") || url.includes("saiyasune") || url.includes("geo-online")) {
+    url.includes("voi") || url.includes("family-town") || url.includes("cainz.com") || url.includes("daimaru-matsuzakaya") || url.includes("saiyasune") || url.includes("geo-online") || 
+    url.includes("uni-jack")) {
         return "購入";
     } else if (url.includes("ac") || url.includes("ed") || url.includes("udemy") || url.includes("wikipedia") || url.includes("chatgpt.com") || url.includes("qiita") || 
-    url.includes("coursera") || url.includes("perry") || url.includes("gakusei")) {
+    url.includes("coursera") || url.includes("perry") || url.includes("gakusei") || url.includes("student") || url.includes("canva") || url.includes("pasokoncalender")) {
         return "学習";
     }
 
     // 🔹 検索エンジンのURLが含まれていたら「検索」と分類
     for (let searchEngine of searchEngines) {
-        if (url.includes(searchEngine) || url.includes("go")) {
+        if (url.includes(searchEngine) || url.includes("search") || url.includes("go")) {
             return "検索";
         }
     }
 
     return "検索"; //「その他」を「検索」として統一
 }
-
 function classifyTabByKeywords(title) {
     for (let category in keywordCategories) {
         for (let keyword of keywordCategories[category]) {
