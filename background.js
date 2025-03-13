@@ -44,11 +44,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // 閲覧時間順にソート
   } else if (message.action === "sortByElapsedTimeRequest") {
+    ungroupTabs();
     sortByElapsedTimeRequest();
     return;
 
   // 開いた時間順にソート
   } else if (message.action === "sortByOpenTimeRequest") {
+    ungroupTabs();
     sortByOpenTimeRequest();
     return;
   } else if (message.action === "groupTabsAutomatically") {
