@@ -110,36 +110,44 @@ document.addEventListener("DOMContentLoaded", () => {
       const elapsedTimes = data.tabElapsedTimes || {};
       const openTimes = data.tabOpenTimes || {};
       const titles = data.tabTitles || {};
-  
+
+        chrome.tabs.query({}, tabs => {
+            // タブの現在の順序を取得
+            const tabOrder = tabs.map(tab => tab.id.toString());
+
       // テーブルの tbody をクリア
       const tableBody = document.getElementById("timeTable");
       tableBody.innerHTML = "";
   
-      // 各タブの情報をテーブルに追加
-      Object.keys(elapsedTimes).forEach(tabId => {
-        const tr = document.createElement("tr");
-        const titleTd = document.createElement("td");
-        const timeTd = document.createElement("td");
-        const openTimeTd = document.createElement("td");
-  
-          titleTd.textContent = titles[tabId] || "(No Title)";
+            // タブIDの順序で並べ直し
+            tabOrder.forEach(tabId => {
+                if (!elapsedTimes[tabId]) return; // 記録がないタブはスキップ
 
-          timeTd.id = `time-${tabId}`; // 滞在時間用のIDを設定
-          timeTd.textContent = formatTime(elapsedTimes[tabId] || 0);
+                const tr = document.createElement("tr");
+                tr.dataset.tabId = tabId; // タブIDをデータ属性に設定
+                const titleTd = document.createElement("td");
+                const timeTd = document.createElement("td");
+                const openTimeTd = document.createElement("td");
 
-        if (openTimes[tabId]) {
-          const dateObj = new Date(openTimes[tabId]);
-          openTimeTd.textContent = dateObj.toLocaleTimeString();
-        } else {
-          openTimeTd.textContent = "N/A";
-        }
-  
-        tr.appendChild(titleTd);
-        tr.appendChild(timeTd);
-        tr.appendChild(openTimeTd);
-        tableBody.appendChild(tr);
-      });
-        updateTimeOnly(); // 初回の滞在時間更新
+                titleTd.textContent = titles[tabId] || "(No Title)";
+                timeTd.id = `time-${tabId}`; // 滞在時間用のIDを設定
+                timeTd.textContent = formatTime(elapsedTimes[tabId] || 0);
+
+                if (openTimes[tabId]) {
+                    const dateObj = new Date(openTimes[tabId]);
+                    openTimeTd.textContent = dateObj.toLocaleTimeString();
+                } else {
+                    openTimeTd.textContent = "N/A";
+                }
+
+                tr.appendChild(titleTd);
+                tr.appendChild(timeTd);
+                tr.appendChild(openTimeTd);
+                tableBody.appendChild(tr);
+            });
+            updateTimeOnly(); // 滞在時間更新
+        });
+      
     });
 }
 
