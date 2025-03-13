@@ -62,9 +62,10 @@
   <h1>閲覧時間ダッシュボード</h1>
   
   <div>
-    <button id="sortByElapsedTimeButton">閲覧時間でソート</button>
-    <button id="sortByOpenTimeButton">開いた時間順にソート</button>
-  　<button id="groupTabsButton">タブをジャンルごとにグループ化</button>
+      <button id="sortByElapsedTimeButton">閲覧時間でソート</button>
+      <button id="sortByOpenTimeButton">開いた時間順にソート</button>
+      <button id="groupTabsButton">タブをジャンルごとにグループ化</button>
+      <button id="ungroupTabsButton">グループ解除</button>
   </div>
   
   <div class="priority-section">
@@ -123,6 +124,17 @@
                 }, 1000);
             });
         });
+       document.getElementById("ungroupTabsButton").addEventListener("click", () => {
+           chrome.runtime.sendMessage({ action: "ungroupTabs" }, () => {
+               console.log("タブグループ解除リクエスト送信完了");
+
+               // グループ化後に手動でダッシュボード更新
+               setTimeout(() => {
+                   console.log("グループ化解除後にダッシュボード更新");
+                   chrome.runtime.sendMessage({ action: "updateDashboard" });
+               }, 1000);
+           });
+       });
     </script>
 </body>
 </html>
