@@ -1,6 +1,243 @@
 @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+JP&family=Yusei+Magic&display=swap');
 
+body {@import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+JP&family=Yusei+Magic&display=swap');
+
 body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    width: 500px;
+    background-color: #e0e0e0;
+    font-family: "Yusei Magic", sans-serif;
+  }
+   h1,h2 {
+    text-align: center;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    margin-top: 20px;
+  }
+  th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  th {
+    background: blue;
+    color: white;
+    cursor: pointer;
+  }
+  button {
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-family: "Yusei Magic", sans-serif;
+  }
+  .priority-section {
+    background: #fff;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 5px;
+    background: #e0e0e0;
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  li button {
+    margin-left: 10px;
+  }
+  
+  .items {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+  }
+  
+  .item {
+    width: 100px;
+    height: 100px;
+    position: relative; /* 追加 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #e0e0e0;
+    cursor: pointer;
+  }
+  .item:hover{
+    transform: scale(1.25)
+  }
+  
+  .item01,
+  .item02,
+  .item03,
+  .item04 {
+    color: #4169e1;
+    border-radius: 15px;
+    box-shadow: 10px 10px 30px #bebebe,
+                -10px -10px 30px #ffffff;
+  }
+
+  .buttonText{
+    position: absolute; /* 追加 */
+    bottom: 0;          /* 下端に配置 */
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin: 0;
+    font-size: 12px;
+    color: #4169e1;
+  }
+
+  .priority-section{
+    background: #e0e0e0;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 
+                10px 10px 30px #bebebe,
+                -10px -10px 30px #ffff;
+    border: none;
+  }
+
+  .input-group input[type="text"] {
+    /* Neumorphism風デザイン */
+    background: #e0e0e0;
+    border: none;
+    border-radius: 10px;
+    box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
+    
+    /* 高さ・行間などをボタンとそろえる */
+    font-size: 14px;      /* お好みで調整 */
+    line-height: 1;       /* 行間を統一 */
+    height: 40px;         /* 高さを固定すると揃いやすい */
+    padding: 0 15px;      /* 上下の余白を無くして中央揃えをしやすく */
+  }
+
+
+.input-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 入力欄とボタンを左右に分ける */
+    gap: 10px;
+    margin-bottom: 1rem;
+    flex-wrap: nowrap;
+}
+
+    .input-group input,
+    .input-group select {
+        flex-grow: 1; /* 入力欄とセレクトボックスのサイズを揃える */
+        max-width: 300px; /* 幅の上限を設定 */
+    }
+
+    .input-group button {
+        flex-shrink: 0; /* ボタンのサイズを固定 */
+        padding: 5px 15px;
+    }
+
+
+
+  button {
+    margin-bottom: 10px;
+    padding: 10px 20px;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  button:active {
+    box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
+  }
+
+  #tabListDropdown {
+    background: #e0e0e0;
+    border: none;
+    border-radius: 10px;
+    box-shadow: inset 5px 5px 10px #bebebe, 
+                inset -5px -5px 10px #ffffff;
+    font-size: 14px;
+    line-height: 1;
+    height: 40px;         /* input/buttonと揃える */
+    padding: 0 15px;      /* input/buttonと揃える */
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .priority-url-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px; /* 必要に応じて幅を調整してください */
+  }
+
+  #tabListContainer {
+    background: #e0e0e0;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffff;
+    border: none;
+    margin-top: 20px;
+  }
+  .view-buttons {
+    margin-top: 20px;  /* 上部余白を追加 */
+    margin-bottom: 10px; /* 下部余白も調整 */
+    text-align: center;
+  }
+
+  .priority-section {
+    background: #e0e0e0;
+    padding: 1rem 2rem 2rem; /* 上部は1rem、左右は2rem、下部は2rem */
+    border-radius: 20px;
+    box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffff;
+    border: none;
+  }
+  
+  /* 内部の見出しの上部余白をゼロにする */
+  .priority-section h2 {
+    margin-top: 0;
+  }
+
+.header-container {
+    display: flex;
+    align-items: center; /* 縦方向の中央揃え */
+    justify-content: center; /* 横方向の中央揃え */
+    gap: 20px; /* `Tabit` とショートカット一覧の間隔 */
+
+}
+
+.shortcut-info {
+    margin-left: 50px;
+    transform: translateX(185px);
+    transform: translateY(-10px);
+    height: 100px;
+    width: 280px;
+    background: #e0e0e0;
+    padding: 0.3rem; /* 余白を小さく */
+    border-radius: 10px;
+    box-shadow: 3px 3px 10px #bebebe, -3px -3px 10px #ffffff;
+}
+
+    .shortcut-info ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .shortcut-info li {
+        font-size: 12px;
+        line-height: 1; /* 縦の行間を最小限に */
+    }
+
     font-family: Arial, sans-serif;
     padding: 20px;
     width: 500px;
