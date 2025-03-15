@@ -5,7 +5,7 @@ let tabTitles = {};       // タブのタイトル
 let startTime = 0;
 let priorityUrls = [];    // 優先表示するURLのリスト
 
-console.log("✅ background.js is running");
+console.log("background.js is running");
 
 // Chrome起動時（PC再起動後など）に呼ばれる
 chrome.runtime.onStartup.addListener(() => {
@@ -28,7 +28,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 
 /**
- * ▼▼▼ メッセージリスナー (一本化) ▼▼▼
+ *メッセージリスナー
  *   - updatePriorityUrls
  *   - sortByElapsedTimeRequest
  *   - sortByOpenTimeRequest
@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "updatePriorityUrls") {
     priorityUrls = message.urls;
     chrome.storage.local.set({ priorityUrls }, () => {
-      console.log("✅ 優先URLリストを保存:", priorityUrls);
+      console.log("優先URLリストを保存:", priorityUrls);
     });
     return; // 処理終了
 
@@ -62,13 +62,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-/**
- * タブがアクティブになったときの処理
- * - 直前のタブの閲覧時間を確定
- * - 新アクティブタブの開始時間を記録
- * - タブの最後に見られた時間(tabOpenTimes)を更新
- * - タブのタイトルを記録
- */
+
 chrome.tabs.onActivated.addListener(activeInfo => {
   chrome.tabs.get(activeInfo.tabId, tab => {
     if (tab && tab.url && tab.url.includes("dashboard.html")) {
@@ -77,16 +71,15 @@ chrome.tabs.onActivated.addListener(activeInfo => {
     }
     
     // dashboard 以外のタブの場合のみ処理を実行
-    trackTime(); // 直前のタブの閲覧時間を更新
+    trackTime(); 
 
     activeTabId = activeInfo.tabId;
     startTime = Date.now();
 
-    // タブの開いた(アクティブになった)時間を記録
+
     tabOpenTimes[activeTabId] = Date.now();
     chrome.storage.local.set({ tabOpenTimes });
-
-    // タブのタイトルを取得して保存
+    
     setTimeout(()=>{
       tabTitles[activeTabId] = tab.title;
       chrome.storage.local.set({ tabTitles });
@@ -99,7 +92,7 @@ chrome.tabs.onActivated.addListener(activeInfo => {
  * - フォーカスが当たったらアクティブタブを更新
  */
 chrome.windows.onFocusChanged.addListener(windowId => {
-  trackTime(); // 直前タブの閲覧時間を確定
+  trackTime(); 
 
   if (windowId === chrome.windows.WINDOW_ID_NONE) {
     // フォーカスがない
@@ -115,8 +108,6 @@ chrome.windows.onFocusChanged.addListener(windowId => {
       if (tabs.length > 0) {
         activeTabId = tabs[0].id;
         startTime = Date.now();
-
-        // 最後に見られた時間を更新
         tabOpenTimes[activeTabId] = Date.now();
         chrome.storage.local.set({ tabOpenTimes });
       }
@@ -126,8 +117,6 @@ chrome.windows.onFocusChanged.addListener(windowId => {
 
 /**
  * タブが閉じられたとき
- * - 閉じられたタブがアクティブだった場合、時間を確定
- * - 閉じられたタブの情報を削除
  */
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
   if (tabId === activeTabId) {
@@ -156,7 +145,7 @@ function trackTime() {
 
     // ストレージに保存してからダッシュボード更新を通知
     chrome.storage.local.set({ tabElapsedTimes }, () => {
-      console.log("✅ 時間データ保存完了:", tabElapsedTimes);
+      console.log(" 時間データ保存完了:", tabElapsedTimes);
 
       // ダッシュボードに「更新してください」とメッセージ送信
       chrome.runtime.sendMessage({ action: "updateDashboard" }, (response) => {
@@ -165,17 +154,16 @@ function trackTime() {
           const msg = chrome.runtime.lastError.message;
           // 「受信先がいない」エラーなら無視、別のエラーなら表示
           if (msg.includes("Receiving end does not exist")) {
-            // 何もしない
+            
           } else {
             console.warn("メッセージ送信エラー:", msg);
           }
         } else {
-          console.log("✅ メッセージ送信成功:", response);
+          console.log("メッセージ送信成功:", response);
         }
       });
     });
 
-    // 計測開始時間をリセット
     startTime = Date.now();
   }
 }
@@ -255,7 +243,7 @@ function sortByOpenTimeRequest() {
         .map(entry => parseInt(entry[0]))
         .filter(tabId => openTabIds.includes(tabId));
 
-      console.log("📌 開いた時間順のタブIDリスト:", sortedTabIds);
+      console.log("開いた時間順のタブIDリスト:", sortedTabIds);
       moveTabsInOrder(sortedTabIds);
     });
   });
@@ -270,7 +258,7 @@ function ungroupTabs() {
                 if (chrome.runtime.lastError) {
                     console.warn(`グループ解除エラー: ${chrome.runtime.lastError.message}`);
                 } else {
-                    console.log(`✅ タブ解除: ${tab.id}`);
+                    console.log(`タブ解除: ${tab.id}`);
                 }
             });
         });
@@ -350,7 +338,7 @@ function classifyTabByURL(url) {
         return "学習";
     }
 
-    // 🔹 検索エンジンのURLが含まれていたら「検索」と分類
+    // 検索エンジンのURLが含まれていたら「検索」と分類
     for (let searchEngine of searchEngines) {
         if (url.includes(searchEngine) || url.includes("search") || url.includes("go") || url.includes("yahoo")) {
             return "検索";
@@ -409,18 +397,18 @@ async function groupTabsAutomatically() {
                 // **グループ化してIDを取得**
                 chrome.tabs.group({ tabIds: genreGroups[genre] }, async (groupId) => {
                     if (!groupId) {
-                        console.warn(`🚨 ${genre} のグループID取得に失敗`);
+                        console.warn(` ${genre} のグループID取得に失敗`);
                         return;
                     }
 
-                    console.log(`✅ グループ作成: ${genre} (ID: ${groupId})`);
+                    console.log(`グループ作成: ${genre} (ID: ${groupId})`);
 
                     // **タイトルを設定**
                     try {
                         await chrome.tabGroups.update(groupId, { title: genre, color: genreColors[genre] });
-                        console.log(`🔹 ${genre} グループにタイトル設定完了`);
+                        console.log(` ${genre} グループにタイトル設定完了`);
                     } catch (error) {
-                        console.error(`🚨 ${genre} グループのタイトル設定エラー:`, error);
+                        console.error(` ${genre} グループのタイトル設定エラー:`, error);
                     }
                 });
             }
