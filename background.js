@@ -318,7 +318,7 @@ function classifyTabByURL(url) {
     url.includes("mtrl.com") || url.includes("career") || url.includes("geekly") || url.includes("r-agent") || url.includes("doda") || url.includes("miidas") || 
     url.includes("tenshoku") || url.includes("directscout") || url.includes("next.rikunabi") || url.includes("speakerdeck") || url.includes("slideshare") || url.includes("undraw") || 
     url.includes("freepick") || url.includes("soco-st") || url.includes("loosedrawing") || url.includes("isometric") || url.includes("tech-pic") || url.includes("manypixels") || 
-    url.includes("simpc") || url.includes("prezi")) {
+    url.includes("simpc") || url.includes("prezi") || url.includes("finance.yahoo.co.jp")) {
         return "仕事";
     } else if (url.includes("news") || url.includes("nikkei") || url.includes("asahi.com") || url.includes("bbc.com") || url.includes("mainichi") || url.includes("sankei") || 
     url.includes("jiji") || url.includes("yomiuri") || url.includes("reuters") || url.includes("cnn.co") || url.includes("afpbb") || url.includes("meti") || url.includes("co-media") || 
@@ -332,7 +332,7 @@ function classifyTabByURL(url) {
     url.includes("movie-tsutaya") || url.includes("lemino") || url.includes("animestore") || url.includes("dmm.com") || url.includes("animehodai") || url.includes("watcha.com") || 
     url.includes("bs10") || url.includes("skyperfectv") || url.includes("wowow") || url.includes("mubi") || url.includes("hulu") || url.includes("telasa") || url.includes("prnhub") || 
     url.includes("missav") || url.includes("jable")  || url.includes("animefesta") || url.includes("recochoku") || url.includes("mora") || url.includes("spotify") || 
-    url.includes("x.com") || url.includes("mtrl.tokyo") || url.includes("instagram") || url.includes("facebook")) {
+    url.includes("x.com") || url.includes("mtrl.tokyo") || url.includes("instagram") || url.includes("facebook") || url.includes("games.yahoo.co.jp")) {
         return "娯楽";
     } else if (url.includes("shop") || url.includes("shopping") || url.includes("store") || url.includes("amazon.co.jp") || url.includes("rakuten.co.jp") || url.includes("mercari") || 
     url.includes("ebay") || url.includes("qoo10") || url.includes("shopping.yahoo") || url.includes("yodobashi") || url.includes("wowma") || url.includes("dmarket") || 
@@ -342,17 +342,17 @@ function classifyTabByURL(url) {
     url.includes("gladd") || url.includes("temu.com") || url.includes("workman.jp") || url.includes("monotaro") || url.includes("shopping.google") || url.includes("7net") || 
     url.includes("tokyu-dept") || url.includes("edion.com") || url.includes("keionet") || url.includes("joshinweb") || url.includes("amicashop") || url.includes("sej.co") || 
     url.includes("voi.0101") || url.includes("family-town") || url.includes("cainz.com") || url.includes("daimaru-matsuzakaya") || url.includes("saiyasune") || url.includes("geo-online") || 
-    url.includes("uni-jack")) {
+    url.includes("uni-jack") || url.includes("demae-can")) {
         return "購入";
     } else if (url.includes("udemy") || url.includes("wikipedia") || url.includes("chatgpt.com") || url.includes("qiita") || url.includes("manabitimes") || url.includes("momoyama-usagi") || 
     url.includes("coursera") || url.includes("perry") || url.includes("gakusei") || url.includes("student") || url.includes("canva") || url.includes("pasokoncalender") || url.includes("lab-brains") || 
-    url.includes("avilen") || url.includes("headboost") || url.includes("algebra") || url.includes("note.com") || url.includes("mathlandscape")) {
+    url.includes("avilen") || url.includes("headboost") || url.includes("algebra") || url.includes("note.com") || url.includes("mathlandscape") || url.includes("ly-academy.yahoo.co.jp")) {
         return "学習";
     }
 
     // 🔹 検索エンジンのURLが含まれていたら「検索」と分類
     for (let searchEngine of searchEngines) {
-        if (url.includes(searchEngine) || url.includes("search") || url.includes("go")) {
+        if (url.includes(searchEngine) || url.includes("search") || url.includes("go") || url.includes("yahoo")) {
             return "検索";
         }
     }
