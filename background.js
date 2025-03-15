@@ -334,7 +334,7 @@ function classifyTabByURL(url) {
         return "購入";
     } else if (url.includes("udemy") || url.includes("wikipedia") || url.includes("chatgpt.com") || url.includes("qiita") || url.includes("manabitimes") || url.includes("momoyama-usagi") || 
     url.includes("coursera") || url.includes("perry") || url.includes("gakusei") || url.includes("student") || url.includes("canva") || url.includes("pasokoncalender") || url.includes("lab-brains") || 
-    url.includes("avilen") || url.includes("headboost") || url.includes("algebra") || url.includes("note.com") || url.includes("mathlandscape") || url.includes("ly-academy.yahoo.co.jp")) {
+    url.includes("avilen") || url.includes("headboost") || url.includes("algebra") || url.includes("note.com") || url.includes("mathlandscape") || url.includes("ly-academy.yahoo.co.jp") || url.includes("onedrive")) {
         return "学習";
     }
 
