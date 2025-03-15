@@ -65,7 +65,7 @@ body {
   .item {
     width: 100px;
     height: 100px;
-    position: relative; /* 追加 */
+    position: relative; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -87,8 +87,8 @@ body {
   }
 
   .buttonText{
-    position: absolute; /* 追加 */
-    bottom: 0;          /* 下端に配置 */
+    position: absolute; 
+    bottom: 0;          
     left: 0;
     width: 100%;
     text-align: center;
@@ -108,24 +108,21 @@ body {
   }
 
   .input-group input[type="text"] {
-    /* Neumorphism風デザイン */
     background: #e0e0e0;
     border: none;
     border-radius: 10px;
     box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
-    
-    /* 高さ・行間などをボタンとそろえる */
-    font-size: 14px;      /* お好みで調整 */
-    line-height: 1;       /* 行間を統一 */
-    height: 40px;         /* 高さを固定すると揃いやすい */
-    padding: 0 15px;      /* 上下の余白を無くして中央揃えをしやすく */
+    font-size: 14px;    
+    line-height: 1;       
+    height: 40px;         
+    padding: 0 15px;      
   }
 
 
 .input-group {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* 入力欄とボタンを左右に分ける */
+    justify-content: space-between; 
     gap: 10px;
     margin-bottom: 1rem;
     flex-wrap: nowrap;
@@ -133,8 +130,8 @@ body {
 
     .input-group input,
     .input-group select {
-        flex-grow: 1; /* 入力欄とセレクトボックスのサイズを揃える */
-        max-width: 300px; /* 幅の上限を設定 */
+        flex-grow: 1; 
+        max-width: 300px; 
     }
 
     .input-group button {
@@ -167,8 +164,8 @@ body {
                 inset -5px -5px 10px #ffffff;
     font-size: 14px;
     line-height: 1;
-    height: 40px;         /* input/buttonと揃える */
-    padding: 0 15px;      /* input/buttonと揃える */
+    height: 40px;         
+    padding: 0 15px;      
     cursor: pointer;
     transition: all 0.2s ease;
   }
@@ -177,7 +174,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 300px; /* 必要に応じて幅を調整してください */
+    max-width: 300px; 
   }
 
   #tabListContainer {
@@ -189,29 +186,29 @@ body {
     margin-top: 20px;
   }
   .view-buttons {
-    margin-top: 20px;  /* 上部余白を追加 */
-    margin-bottom: 10px; /* 下部余白も調整 */
+    margin-top: 20px;  
+    margin-bottom: 10px; 
     text-align: center;
   }
 
   .priority-section {
     background: #e0e0e0;
-    padding: 1rem 2rem 2rem; /* 上部は1rem、左右は2rem、下部は2rem */
+    padding: 1rem 2rem 2rem; 
     border-radius: 20px;
     box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffff;
     border: none;
   }
   
-  /* 内部の見出しの上部余白をゼロにする */
+  
   .priority-section h2 {
     margin-top: 0;
   }
 
 .header-container {
     display: flex;
-    align-items: center; /* 縦方向の中央揃え */
-    justify-content: center; /* 横方向の中央揃え */
-    gap: 20px; /* `Tabit` とショートカット一覧の間隔 */
+    align-items: center; 
+    justify-content: center; 
+    gap: 20px;
 
 }
 
@@ -222,7 +219,7 @@ body {
     height: 100px;
     width: 280px;
     background: #e0e0e0;
-    padding: 0.3rem; /* 余白を小さく */
+    padding: 0.3rem; 
     border-radius: 10px;
     box-shadow: 3px 3px 10px #bebebe, -3px -3px 10px #ffffff;
 }
@@ -235,7 +232,7 @@ body {
 
     .shortcut-info li {
         font-size: 12px;
-        line-height: 1; /* 縦の行間を最小限に */
+        line-height: 1; 
     }
 
     font-family: Arial, sans-serif;
@@ -300,7 +297,7 @@ body {
   .item {
     width: 100px;
     height: 100px;
-    position: relative; /* 追加 */
+    position: relative; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -322,8 +319,8 @@ body {
   }
 
   .buttonText{
-    position: absolute; /* 追加 */
-    bottom: 0;          /* 下端に配置 */
+    position: absolute; 
+    bottom: 0;          
     left: 0;
     width: 100%;
     text-align: center;
@@ -343,25 +340,25 @@ body {
   }
 
   .input-group input[type="text"] {
-    /* Neumorphism風デザイン */
+    
     background: #e0e0e0;
     border: none;
     border-radius: 10px;
     box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
     
-    /* 高さ・行間などをボタンとそろえる */
-    font-size: 14px;      /* お好みで調整 */
-    line-height: 1;       /* 行間を統一 */
-    height: 40px;         /* 高さを固定すると揃いやすい */
-    padding: 0 15px;      /* 上下の余白を無くして中央揃えをしやすく */
+    
+    font-size: 14px;      
+    line-height: 1;       
+    height: 40px;         
+    padding: 0 15px;      
   }
   
 
   .input-group {
     display: flex;
     align-items: center;
-    gap: 10px; /* 要素間の隙間を調整 */
-    margin-bottom: 1rem; /* 下部に余白を追加（必要に応じて） */
+    gap: 10px; 
+    margin-bottom: 1rem; 
   }
 
   button {
@@ -387,8 +384,8 @@ body {
                 inset -5px -5px 10px #ffffff;
     font-size: 14px;
     line-height: 1;
-    height: 40px;         /* input/buttonと揃える */
-    padding: 0 15px;      /* input/buttonと揃える */
+    height: 40px;         
+    padding: 0 15px;      
     cursor: pointer;
     transition: all 0.2s ease;
   }
@@ -397,7 +394,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 300px; /* 必要に応じて幅を調整してください */
+    max-width: 300px; 
   }
 
   #tabListContainer {
@@ -409,28 +406,28 @@ body {
     margin-top: 20px;
   }
   .view-buttons {
-    margin-top: 20px;  /* 上部余白を追加 */
-    margin-bottom: 10px; /* 下部余白も調整 */
+    margin-top: 20px;  
+    margin-bottom: 10px; 
     text-align: center;
   }
 
   .priority-section {
     background: #e0e0e0;
-    padding: 1rem 2rem 2rem; /* 上部は1rem、左右は2rem、下部は2rem */
+    padding: 1rem 2rem 2rem; 
     border-radius: 20px;
     box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffff;
     border: none;
   }
   
-  /* 内部の見出しの上部余白をゼロにする */
+
   .priority-section h2 {
     margin-top: 0;
   }
 
 .header-container {
     display: flex;
-    align-items: center; /* 縦方向の中央揃え */
-    justify-content: center; /* 横方向の中央揃え */
+    align-items: center; 
+    justify-content: center; 
     gap: 20px; /* `Tabit` とショートカット一覧の間隔 */
 
 }
@@ -442,7 +439,7 @@ body {
     height: 90px;
     width: 280px;
     background: #e0e0e0;
-    padding: 0.3rem; /* 余白を小さく */
+    padding: 0.3rem;
     border-radius: 10px;
     box-shadow: 3px 3px 10px #bebebe, -3px -3px 10px #ffffff;
 }
@@ -455,5 +452,5 @@ body {
 
     .shortcut-info li {
         font-size: 12px;
-        line-height: 1; /* 縦の行間を最小限に */
+        line-height: 1;
     }
