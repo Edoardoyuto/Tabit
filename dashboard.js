@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
   // 定期的にダッシュボードを更新
   updateDashboard();
-  setInterval(updateTimeOnly, 1000); // 1秒ごとに滞在時間のみ更新
+  setInterval(updateTimeOnly, 1000); // 1秒ごとに滞在時間のみ
   updateTabListDropdown();
   loadPriorityUrls();
 
-  // ▼ 表示切替ボタンのイベントリスナー追加
+
   document.getElementById("toggleTabListButton").addEventListener("click", () => {
     const container = document.getElementById("tabListContainer");
     container.style.display = container.style.display === "none" ? "block" : "none";
@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
     container.style.display = container.style.display === "none" ? "block" : "none";
   });
 
-  // 以降、既存の処理（タブ一覧ドロップダウン更新、優先URL追加、ソート、グループ化など）
   // タブ一覧をドロップダウンに更新
   function updateTabListDropdown() {
       chrome.tabs.query({}, tabs => {
@@ -52,9 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("sortByElapsedTimeButton").addEventListener("click", () => {
     chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, (response) => {
       if (chrome.runtime.lastError) {
-        console.error("❌ ソートリクエスト送信エラー:", chrome.runtime.lastError);
+        console.error("ソートリクエスト送信エラー:", chrome.runtime.lastError);
       } else {
-        console.log("✅ ソートリクエスト送信成功:", response);
+        console.log("ソートリクエスト送信成功:", response);
       }
     });
   });
@@ -75,9 +74,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("sortByOpenTimeButton").addEventListener("click", () => {
     chrome.runtime.sendMessage({ action: "sortByOpenTimeRequest" }, (response) => {
       if (chrome.runtime.lastError) {
-        console.error("❌ ソートリクエスト送信エラー:", chrome.runtime.lastError);
+        console.error("ソートリクエスト送信エラー:", chrome.runtime.lastError);
       } else {
-        console.log("✅ ソートリクエスト送信成功:", response);
+        console.log("ソートリクエスト送信成功:", response);
       }
     });
   });
@@ -104,9 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // メッセージ受信リスナー
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("📩 受信したメッセージ:", message);
+  console.log("受信したメッセージ:", message);
   if (message.action === "updateDashboard") {
-    console.log("🔄 ダッシュボード更新リクエストを受信");
+    console.log("ダッシュボード更新リクエストを受信");
     updateDashboard();
     sendResponse({ status: "ok" });
   }
