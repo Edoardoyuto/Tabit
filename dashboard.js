@@ -111,43 +111,57 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+const initialTabTimes = {};  // ← 修正：tabIdごとの初期秒数
+let dashboardStartTime = 0; // ← 最初は0にしておく
+
+
 // ダッシュボードの表示を更新
 function updateDashboard() {
-  chrome.storage.local.get(["tabElapsedTimes", "tabOpenTimes", "tabTitles"], data => {
-    const elapsedTimes = data.tabElapsedTimes || {};
-    const openTimes = data.tabOpenTimes || {};
-    const titles = data.tabTitles || {};
+    chrome.storage.local.get(["tabElapsedTimes", "tabOpenTimes", "tabTitles"], data => {
+        const elapsedTimes = data.tabElapsedTimes || {};
+        const openTimes = data.tabOpenTimes || {};
+        const titles = data.tabTitles || {};
 
-    // テーブルの tbody をクリア
-    const tableBody = document.getElementById("timeTable");
-    tableBody.innerHTML = "";
+        chrome.tabs.query({}, tabs => {
+            const openTabIds = tabs.map(tab => tab.id.toString());
 
-    // 各タブの情報をテーブルに追加
-    Object.keys(elapsedTimes).forEach(tabId => {
-      const tr = document.createElement("tr");
-      const titleTd = document.createElement("td");
-      const timeTd = document.createElement("td");
-      const openTimeTd = document.createElement("td");
+            dashboardStartTime = Date.now(); // 最新の基準時間に更新
 
-      titleTd.textContent = titles[tabId] || "(No Title)";
-      timeTd.id = `time-${tabId}`; // 滞在時間用のIDを設定
-      timeTd.textContent = formatTime(elapsedTimes[tabId] || 0);
+            const tableBody = document.getElementById("timeTable");
+            tableBody.innerHTML = "";
 
-      if (openTimes[tabId]) {
-        const dateObj = new Date(openTimes[tabId]);
-        openTimeTd.textContent = dateObj.toLocaleTimeString();
-      } else {
-        openTimeTd.textContent = "N/A";
-      }
+            Object.keys(elapsedTimes).forEach(tabId => {
+                if (!openTabIds.includes(tabId)) return;
 
-      tr.appendChild(titleTd);
-      tr.appendChild(timeTd);
-      tr.appendChild(openTimeTd);
-      tableBody.appendChild(tr);
+                const baseSeconds = Math.floor(elapsedTimes[tabId] / 1000);
+                initialTabTimes[tabId] = baseSeconds;
+
+                const tr = document.createElement("tr");
+                const titleTd = document.createElement("td");
+                const timeTd = document.createElement("td");
+                const openTimeTd = document.createElement("td");
+
+                titleTd.textContent = titles[tabId] || "(No Title)";
+                timeTd.id = `time-${tabId}`;
+                timeTd.textContent = formatTime(baseSeconds * 1000);
+
+                if (openTimes[tabId]) {
+                    const dateObj = new Date(openTimes[tabId]);
+                    openTimeTd.textContent = dateObj.toLocaleTimeString();
+                } else {
+                    openTimeTd.textContent = "N/A";
+                }
+
+                tr.appendChild(titleTd);
+                tr.appendChild(timeTd);
+                tr.appendChild(openTimeTd);
+                tableBody.appendChild(tr);
+            });
+        });
     });
-    updateTimeOnly(); // 初回の滞在時間更新
-  });
 }
+
+
 
 // 時間をフォーマットする関数
 function formatTime(milliseconds) {
@@ -167,34 +181,25 @@ function formatTime(milliseconds) {
 
 // **1秒ごとに滞在時間のみ更新**
 function updateTimeOnly() {
-  chrome.storage.local.get(["tabElapsedTimes"], data => {
-      let elapsedTimes = data.tabElapsedTimes || {};
-      const currentTime = Date.now();
+    const now = Date.now();
 
-      // 現在のアクティブタブを取得
-      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-          const activeTabId = tabs.length > 0 ? tabs[0].id.toString() : null;
-          let updated = false;
+    // 現在のアクティブなタブを取得
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+        const activeTab = tabs[0];
+        if (!activeTab || activeTab.url.includes("dashboard.html")) return;
 
-          Object.keys(elapsedTimes).forEach(tabId => {
-              const timeTd = document.getElementById(`time-${tabId}`);
-              if (timeTd) {
-                  let elapsedTime = elapsedTimes[tabId] || 0;
-                  if (tabId === activeTabId) {
-                      elapsedTime += 1000; // 1秒増やす
-                      elapsedTimes[tabId] = elapsedTime;
-                      updated = true;
-                  }
-                  timeTd.textContent = formatTime(elapsedTime);
-              }
-          });
+        const activeTabId = activeTab.id.toString();
+        const secondsSinceOpen = Math.floor((now - dashboardStartTime) / 1000);
 
-          if (updated) {
-              chrome.storage.local.set({ tabElapsedTimes: elapsedTimes });
-          }
-      });
-  });
+        const timeTd = document.getElementById(`time-${activeTabId}`);
+        if (timeTd && initialTabTimes[activeTabId] !== undefined) {
+            const totalSeconds = initialTabTimes[activeTabId] + secondsSinceOpen;
+            timeTd.textContent = formatTime(totalSeconds * 1000);
+        }
+    });
 }
+
+
 
 // 優先URLリストを読み込んで表示
 function loadPriorityUrls() {
