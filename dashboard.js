@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
   updateTabListDropdown();
   loadPriorityUrls();
 
+    chrome.runtime.sendMessage({ action: "refreshTabTitles" });
+
 
   document.getElementById("toggleTabListButton").addEventListener("click", () => {
     const container = document.getElementById("tabListContainer");
@@ -130,8 +132,9 @@ function updateDashboard() {
             const tableBody = document.getElementById("timeTable");
             tableBody.innerHTML = "";
 
-            Object.keys(elapsedTimes).forEach(tabId => {
-                if (!openTabIds.includes(tabId)) return;
+            tabs.forEach(tab => {
+                const tabId = tab.id.toString();
+                if (!(tabId in elapsedTimes)) return;
 
                 const baseSeconds = Math.floor(elapsedTimes[tabId] / 1000);
                 initialTabTimes[tabId] = baseSeconds;
