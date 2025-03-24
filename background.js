@@ -7,6 +7,11 @@ let priorityUrls = [];    // 優先表示するURLのリスト
 
 console.log("background.js is running");
 
+setInterval(() => {
+    trackTime();
+}, 5000);
+
+
 // Chrome起動時（PC再起動後など）に呼ばれる
 chrome.runtime.onStartup.addListener(() => {
   chrome.storage.local.get(["priorityUrls"], data => {
@@ -15,24 +20,6 @@ chrome.runtime.onStartup.addListener(() => {
   });
 });
 
-/* 拡張機能がインストール・更新されたときに呼ばれる
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.windows.create({
-    url: "dashboard.html",
-    type: "popup",
-    width: 600,
-    height: 400
-  });
-});
-*/
-
-
-/**
- *メッセージリスナー
- *   - updatePriorityUrls
- *   - sortByElapsedTimeRequest
- *   - sortByOpenTimeRequest
- */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // 優先URLの更新
   if (message.action === "updatePriorityUrls") {
@@ -115,6 +102,17 @@ chrome.windows.onFocusChanged.addListener(windowId => {
   }
 });
 
+chrome.runtime.onStartup.addListener(() => {
+    chrome.storage.local.get(["priorityUrls", "tabElapsedTimes", "tabOpenTimes", "tabTitles"], data => {
+        priorityUrls = data.priorityUrls || [];
+        tabElapsedTimes = data.tabElapsedTimes || {};
+        tabOpenTimes = data.tabOpenTimes || {};
+        tabTitles = data.tabTitles || {};
+        console.log("状態を復元:", { priorityUrls, tabElapsedTimes, tabOpenTimes, tabTitles });
+    });
+});
+
+
 /**
  * タブが閉じられたとき
  */
@@ -139,34 +137,34 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
  * アクティブタブの閲覧時間を確定する
  */
 function trackTime() {
-  if (activeTabId !== null && startTime !== 0) {
-    const elapsedTime = Date.now() - startTime;
-    tabElapsedTimes[activeTabId] = (tabElapsedTimes[activeTabId] || 0) + elapsedTime;
+    if (activeTabId !== null && startTime !== 0) {
+        const elapsedTime = Date.now() - startTime;
 
-    // ストレージに保存してからダッシュボード更新を通知
-    chrome.storage.local.set({ tabElapsedTimes }, () => {
-      console.log(" 時間データ保存完了:", tabElapsedTimes);
+        // ローカルストレージに都度反映
+        chrome.storage.local.get("tabElapsedTimes", (data) => {
+            const store = data.tabElapsedTimes || {};
+            store[activeTabId] = (store[activeTabId] || 0) + elapsedTime;
 
-      // ダッシュボードに「更新してください」とメッセージ送信
-      chrome.runtime.sendMessage({ action: "updateDashboard" }, (response) => {
-        // ダッシュボードが開いていない場合、lastErrorが発生する
-        if (chrome.runtime.lastError) {
-          const msg = chrome.runtime.lastError.message;
-          // 「受信先がいない」エラーなら無視、別のエラーなら表示
-          if (msg.includes("Receiving end does not exist")) {
-            
-          } else {
-            console.warn("メッセージ送信エラー:", msg);
-          }
-        } else {
-          console.log("メッセージ送信成功:", response);
-        }
-      });
-    });
+            chrome.storage.local.set({ tabElapsedTimes: store }, () => {
+                console.log("時間データ保存完了:", store);
 
-    startTime = Date.now();
-  }
+                chrome.runtime.sendMessage({ action: "updateDashboard" }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        const msg = chrome.runtime.lastError.message;
+                        if (!msg.includes("Receiving end does not exist")) {
+                            console.warn("メッセージ送信エラー:", msg);
+                        }
+                    } else {
+                        console.log("メッセージ送信成功:", response);
+                    }
+                });
+            });
+        });
+
+        startTime = Date.now();
+    }
 }
+
 
 /**
  * 優先タブを最上位に置いたうえで、sortedTabIdsの順にタブを並べる
