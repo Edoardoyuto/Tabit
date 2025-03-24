@@ -376,6 +376,35 @@ body {
     box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
   }
 
+#timeTable {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+    #timeTable th, #timeTable td {
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+        text-align: left;
+    }
+
+        #timeTable th:nth-child(1), #timeTable td:nth-child(1) {
+            width: 60%; /* タブ名列 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #timeTable th:nth-child(2), #timeTable td:nth-child(2) {
+            width: 160px; /* 閲覧時間 */
+            white-space: nowrap;
+        }
+
+        #timeTable th:nth-child(3), #timeTable td:nth-child(3) {
+            width: 120px; /* 開いた時間 */
+            white-space: nowrap;
+        }
+
+
   #tabListDropdown {
     background: #e0e0e0;
     border: none;
