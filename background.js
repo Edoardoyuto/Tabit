@@ -12,6 +12,11 @@ setInterval(() => {
 }, 5000);
 
 
+chrome.tabs.onMoved.addListener(() => {
+    chrome.runtime.sendMessage({ action: "updateDashboard" });
+});
+
+
 // Chrome起動時（PC再起動後など）に呼ばれる
 chrome.runtime.onStartup.addListener(() => {
   chrome.storage.local.get(["priorityUrls"], data => {
@@ -45,6 +50,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return;
   } else if (message.action === "ungroupTabs") {
       ungroupTabs();
+      return;
+  } else if (message.action === "refreshTabTitles") {
+      refreshAllTabTitles(); 
       return;
   }
 });
@@ -262,6 +270,16 @@ function ungroupTabs() {
         });
     });
 }
+
+function refreshAllTabTitles() {
+    chrome.tabs.query({}, tabs => {
+        tabs.forEach(tab => {
+            tabTitles[tab.id] = tab.title;
+        });
+        chrome.storage.local.set({ tabTitles });
+    });
+}
+
 
 chrome.commands.onCommand.addListener((command) => {
     if (command === "sort_tabs_by_time") {
