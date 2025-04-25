@@ -56,51 +56,70 @@
 
 
 
-    <!-- 優先URL設定部分（入力部は常時表示、一覧部分のみ非表示） -->
-    <div class="priority-section">
-        <h2>優先URL設定</h2>
-        <div class="input-group">
-            <input type="text" placeholder="text URL" id="priorityUrlInput">
-            <button id="addPriorityUrlButton">追加</button>
+    <div class="priority-custom-container">
+        <!-- 優先URL（左） -->
+        <div class="priority-section left-box">
+            <h2>優先URL設定</h2>
+            <div class="input-group">
+                <input type="text" placeholder="text URL" id="priorityUrlInput">
+                <button id="addPriorityUrlButton">追加</button>
+            </div>
+            <div class="input-group">
+                <select id="tabListDropdown">
+                    <option value="">タブを選択</option>
+                </select>
+                <button id="addFromTabsButton">追加</button>
+            </div>
+
         </div>
 
-        <div class="input-group">
-            <select id="tabListDropdown">
-                <option value="">タブを選択</option>
-            </select>
-            <button id="addFromTabsButton">追加</button>
+        <!-- カスタムキーワード（右） -->
+        <div class="priority-section right-box">
+            <h2>カスタムグループ</h2>
+            <div class="input-group">
+                <input type="text" placeholder="例: figma" id="customKeywordInput">
+                <button id="addCustomKeywordButton">追加</button>
+            </div>
+
+            <ul id="customKeywordList"></ul>
+            <button id="groupByCustomKeywordsButton">キーワードでグループ化</button>
         </div>
-
-
-        <!-- 優先URL一覧部分 -->
-
-
-        <div class="view-buttons">
-            <button id="toggleTabListButton">タブ一覧表示/非表示</button>
-            <button id="togglePriorityUrlButton">優先URL一覧表示/非表示</button>
-        </div>
-
-        <div id="priorityUrlContainer" style="display: none;">
-            <h3>優先URL一覧</h3>
-            <ul id="priorityUrlList"></ul>
-        </div>
-
-        <!-- タブ一覧部分（初期は非表示） -->
-        <div id="tabListContainer" style="display: none;">
-            <h2>タブ一覧</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>タブ名</th>
-                        <th>閲覧時間 (秒)</th>
-                        <th>開いた時間</th>
-                    </tr>
-                </thead>
-                <tbody id="timeTable"></tbody>
-            </table>
-        </div>
-
     </div>
+
+
+    <!-- 一覧表示ボタン -->
+    <div class="view-buttons">
+        <button id="toggleTabListButton">タブ一覧ON/OEE</button>
+        <button id="togglePriorityUrlButton">優先URL一覧ON/OFF</button>
+        <button id="toggleCustomKeywordButton">カスタムワード一覧ON/OFF</button>
+    </div>
+
+    <!-- 一覧表示エリア -->
+    <div id="priorityUrlContainer" style="display: none;">
+        <h3>優先URL一覧</h3>
+        <ul id="priorityUrlList"></ul>
+    </div>
+
+    <div id="tabListContainer" style="display: none;">
+        <h2>タブ一覧</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>タブ名</th>
+                    <th>閲覧時間 (秒)</th>
+                    <th>開いた時間</th>
+                </tr>
+            </thead>
+            <tbody id="timeTable"></tbody>
+        </table>
+    </div>
+
+    <!-- カスタムワード一覧用のエリア -->
+    <div id="customKeywordContainer" style="display: none;">
+        <h3>カスタムワード一覧</h3>
+        <ul id="customKeywordListFull"></ul>
+    </div>
+
 
     <script>
         // 既存の各種イベントリスナー（ソート、グループ化など）のコードはそのまま
