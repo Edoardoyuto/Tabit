@@ -3,7 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
   updateDashboard();
   setInterval(updateTimeOnly, 1000); // 1秒ごとに滞在時間のみ
   updateTabListDropdown();
-  loadPriorityUrls();
+    loadPriorityUrls();
+    loadCustomKeywords(); 
 
     chrome.runtime.sendMessage({ action: "refreshTabTitles" });
 
@@ -16,6 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("priorityUrlContainer");
     container.style.display = container.style.display === "none" ? "block" : "none";
   });
+    document.getElementById("toggleCustomKeywordButton").addEventListener("click", () => {
+        const container = document.getElementById("customKeywordContainer");
+        container.style.display = container.style.display === "none" ? "block" : "none";
+    });
 
   // タブ一覧をドロップダウンに更新
   function updateTabListDropdown() {
@@ -101,7 +106,74 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   });
+    // カスタム追加
+    document.getElementById("addCustomKeywordButton").addEventListener("click", () => {
+        const input = document.getElementById("customKeywordInput");
+        const newKeyword = input.value.trim();
+
+        if (newKeyword) {
+            chrome.storage.local.get(["customKeywords"], data => {
+                let keywords = data.customKeywords || [];
+                if (!keywords.includes(newKeyword)) {
+                    keywords.push(newKeyword);
+                    chrome.storage.local.set({ customKeywords: keywords }, () => {
+                        input.value = "";
+                        loadCustomKeywords();
+                    });
+                }
+            });
+        }
+    });
+    //キーワードでグループ化
+    document.getElementById("groupByCustomKeywordsButton").addEventListener("click", () => {
+        chrome.storage.local.get(["customKeywords"], data => {
+            const keywords = data.customKeywords || [];
+            if (keywords.length === 0) {
+                alert("カスタムキーワードが登録されていません！");
+                return;
+            }
+
+            chrome.tabs.query({}, tabs => {
+                const targetTabIds = [];
+
+                tabs.forEach(tab => {
+                    const title = tab.title || "";
+                    const url = tab.url || "";
+
+                    const match = keywords.some(keyword =>
+                        title.includes(keyword) || url.includes(keyword)
+                    );
+
+                    if (match) {
+                        targetTabIds.push(tab.id);
+                    }
+                });
+
+                if (targetTabIds.length === 0) {
+                    alert("該当するタブが見つかりませんでした。");
+                    return;
+                }
+
+                chrome.tabs.group({ tabIds: targetTabIds }, groupId => {
+                    if (chrome.runtime.lastError) {
+                        console.error("グループ化失敗:", chrome.runtime.lastError);
+                        return;
+                    }
+
+                    // グループ名と色を設定
+                    chrome.tabGroups.update(groupId, {
+                        title: "カスタム",
+                        color: "blue" // 好きな色に変更可能（red, yellow, cyan, pink, etc）
+                    });
+                });
+            });
+        });
+    });
+
+
 });
+
+
 
 // メッセージ受信リスナー
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -231,6 +303,26 @@ function loadPriorityUrls() {
   });
 }
 
+function loadCustomKeywords() {
+    chrome.storage.local.get(["customKeywords"], data => {
+        const keywords = data.customKeywords || [];
+
+        // カスタムワード一覧用のリスト更新
+        const fullList = document.getElementById("customKeywordListFull");
+        fullList.innerHTML = "";
+        keywords.forEach(keyword => {
+            const li = document.createElement("li");
+            li.textContent = keyword;
+            const btn = document.createElement("button");
+            btn.textContent = "削除";
+            btn.addEventListener("click", () => removeCustomKeyword(keyword));
+            li.appendChild(btn);
+            fullList.appendChild(li);
+        });
+    });
+}
+
+
 // 優先URLを削除
 function removePriorityUrl(urlToRemove) {
   chrome.storage.local.get(["priorityUrls"], data => {
@@ -242,4 +334,16 @@ function removePriorityUrl(urlToRemove) {
       loadPriorityUrls();
     });
   });
+}
+
+//カスタムワード削除
+function removeCustomKeyword(keywordToRemove) {
+    chrome.storage.local.get(["customKeywords"], data => {
+        let keywords = data.customKeywords || [];
+        keywords = keywords.filter(k => k !== keywordToRemove);
+
+        chrome.storage.local.set({ customKeywords: keywords }, () => {
+            loadCustomKeywords(); // 再描画
+        });
+    });
 }
