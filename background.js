@@ -384,7 +384,33 @@ function classifyTab(title, url) {
 }
 
 async function groupTabsAutomatically() {
+    // カスタムキーワードを取得
+    const { customKeywords = [] } = await chrome.storage.local.get("customKeywords");
+
     chrome.tabs.query({}, async (tabs) => {
+        const customTabIds = [];
+        const remainingTabs = [];
+
+        // カスタムにマッチするタブを抽出
+        for (let tab of tabs) {
+            const title = tab.title || "";
+            const url = tab.url || "";
+            const isCustom = customKeywords.some(keyword => title.includes(keyword) || url.includes(keyword));
+
+            if (isCustom) {
+                customTabIds.push(tab.id);
+            } else {
+                remainingTabs.push(tab);
+            }
+        }
+
+        // ① カスタムタブをグループ化（優先）
+        if (customTabIds.length > 0) {
+            chrome.tabs.group({ tabIds: customTabIds }, async (groupId) => {
+                await chrome.tabGroups.update(groupId, { title: "カスタム", color: "blue" });
+            });
+        }
+
         let genreGroups = {
             "仕事": [],
             "娯楽": [],
@@ -402,7 +428,7 @@ async function groupTabsAutomatically() {
         };
 
         // **タブを分類**
-        for (let tab of tabs) {
+        for (let tab of remainingTabs) {
             let genre = classifyTab(tab.title, tab.url);
             genreGroups[genre].push(tab.id);
         }
