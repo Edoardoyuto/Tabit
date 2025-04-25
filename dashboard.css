@@ -34,12 +34,12 @@ body {
     cursor: pointer;
     font-family: "Yusei Magic", sans-serif;
   }
-  .priority-section {
-    background: #fff;
+.priority-section {
+    background: #e0e0e0;
     padding: 10px;
     margin-top: 10px;
     border: 1px solid #ccc;
-  }
+}
   ul {
     list-style-type: none;
     padding: 0;
@@ -97,26 +97,46 @@ body {
     color: #4169e1;
   }
 
-  .priority-section{
+..priority-section {
     background: #e0e0e0;
-    padding: 2rem;
+    padding: 1rem 1rem 0.5rem; /* ← 下だけ小さく！（上右下） */
     border-radius: 20px;
-    box-shadow: 
-                10px 10px 30px #bebebe,
-                -10px -10px 30px #ffff;
+    box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffff;
     border: none;
-  }
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* ← 要素間の余白も縮める */
+    margin-bottom: 0; /* ← 外側の下余白も削る（必要なら） */
+}
 
-  .input-group input[type="text"] {
+.priority-custom-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem; /* ← 隙間を小さく */
+    margin-top: 20px;
+    flex-wrap: nowrap;
+}
+
+.left-box, .right-box {
+    width: 45%; /* ← 両方を少し小さく */
+    min-width: 0; /* ← はみ出しを防ぐ保険 */
+}
+
+
+
+.input-group input[type="text"],
+.input-group select {
     background: #e0e0e0;
     border: none;
     border-radius: 10px;
     box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
-    font-size: 14px;    
-    line-height: 1;       
-    height: 40px;         
-    padding: 0 15px;      
-  }
+    font-size: 14px;
+    line-height: 1;
+    height: 40px;
+    padding: 0 15px;
+    width: 80%; /* ← 幅を親に合わせる（重要） */
+}
+
 
 
 .input-group {
@@ -130,8 +150,8 @@ body {
 
     .input-group input,
     .input-group select {
-        flex-grow: 1; 
-        max-width: 300px; 
+        flex-grow: 1;
+       
     }
 
     .input-group button {
@@ -185,19 +205,18 @@ body {
     border: none;
     margin-top: 20px;
   }
-  .view-buttons {
-    margin-top: 20px;  
-    margin-bottom: 10px; 
+.view-buttons {
+    margin-top: 40px;
+    margin-bottom: 10px;
+    margin-bottom: 5px;
     text-align: center;
-  }
+    gap: 1rem; /* ボタン間の間隔 */
+}
+    .view-buttons button {
+        padding: 6px 12px; /* ← 上下6px 左右12pxでややスリムに */
+    }
 
-  .priority-section {
-    background: #e0e0e0;
-    padding: 1rem 2rem 2rem; 
-    border-radius: 20px;
-    box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffff;
-    border: none;
-  }
+
   
   
   .priority-section h2 {
@@ -262,7 +281,7 @@ body {
   }
   button {
     margin-bottom: 10px;
-    padding: 5px 10px;
+    padding: 5px 8px;
     cursor: pointer;
     font-family: "Yusei Magic", sans-serif;
   }
@@ -361,16 +380,16 @@ body {
     margin-bottom: 1rem; 
   }
 
-  button {
+button {
     margin-bottom: 10px;
-    padding: 10px 20px;
+    padding: 10px 8px;
     background: #e0e0e0;
     border: none;
     border-radius: 10px;
     box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
     transition: all 0.2s ease;
     cursor: pointer;
-  }
+}
   
   button:active {
     box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
