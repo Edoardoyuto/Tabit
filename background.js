@@ -4,12 +4,20 @@ let tabOpenTimes = {};    // タブが最後に見られた時間
 let tabTitles = {};       // タブのタイトル
 let startTime = 0;
 let priorityUrls = [];    // 優先表示するURLのリスト
+let autoGroupingEnabled = false; // 自動グループ化ON/OFF
+let currentClassroomId = "";
+let updateTimer = null;
+let updateModeEnabled = true;  // 初期状態ONにする
+
 
 console.log("background.js is running");
 
 setInterval(() => {
     trackTime();
 }, 5000);
+
+
+
 
 
 chrome.tabs.onMoved.addListener(() => {
@@ -19,15 +27,104 @@ chrome.tabs.onMoved.addListener(() => {
 
 // Chrome起動時（PC再起動後など）に呼ばれる
 chrome.runtime.onStartup.addListener(() => {
-  chrome.storage.local.get(["priorityUrls"], data => {
-    priorityUrls = data.priorityUrls || [];
-    console.log("URLリストを復元:", priorityUrls);
-  });
+    chrome.storage.local.get(["priorityUrls", "tabElapsedTimes", "tabOpenTimes", "tabTitles", "autoGroupEnabled"], data => {
+        priorityUrls = data.priorityUrls || [];
+        tabElapsedTimes = data.tabElapsedTimes || {};
+        tabOpenTimes = data.tabOpenTimes || {};
+        tabTitles = data.tabTitles || {};
+        autoGroupingEnabled = data.autoGroupEnabled === true; // ←ここ追加！
+
+        console.log("状態を復元:", { priorityUrls, tabElapsedTimes, tabOpenTimes, tabTitles, autoGroupingEnabled });
+    });
 });
+
+
+chrome.storage.local.get(["updateModeEnabled"], (data) => {
+    if (data.updateModeEnabled !== undefined) {
+        updateModeEnabled = data.updateModeEnabled;
+    }
+    console.log("[Background] 保存された更新モード:", updateModeEnabled);
+
+    if (updateModeEnabled) {
+        fetchAndOpenUrls();
+        updateTimer = setInterval(fetchAndOpenUrls, 5000);
+    }
+});
+
+
+// サーバーから教室IDとURLを取ってきてタブを開く
+async function fetchAndOpenUrls() {
+    try {
+        const response = await fetch("http://localhost:5500/index.txt", {
+            credentials: "include"
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTPエラー: ${response.status}`);
+        }
+
+        const text = await response.text();
+        console.log("[Background] 受信したデータ:", text);
+
+        const parts = text.split(",");
+        const urls = parts.map(url => url.trim()).filter(url => url !== "");
+
+
+
+        if (urls.length > 0) {
+            const tabs = await chrome.tabs.query({});
+            const openUrls = tabs.map(tab => normalizeUrl(tab.url));
+
+            console.log("[Background] 現在開いてるURL一覧（正規化後）:", openUrls);
+            const urlsToOpen = urls.filter(url => !openUrls.includes(url));
+
+            console.log("[Background] 開こうとしているURLリスト:", urlsToOpen);
+
+            for (const url of urlsToOpen) {
+                chrome.tabs.create({ url: url }, (tab) => {
+                    if (chrome.runtime.lastError) {
+                        console.error("[Background] タブ作成エラー:", chrome.runtime.lastError.message);
+                    } else {
+                        console.log("[Background] タブ作成成功:", tab);
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.error("[Background] fetchエラー:", error);
+    }
+}
+
+function normalizeUrl(url) {
+    if (!url) return "";
+    return url.endsWith("/") ? url.slice(0, -1) : url;
+}
+
+
+
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // 優先URLの更新
-  if (message.action === "updatePriorityUrls") {
+    if (message.action === "toggleUpdateMode") {
+        updateModeEnabled = !updateModeEnabled; // ★ここでtoggleする！
+        console.log("[Background] 更新モード切り替え:", updateModeEnabled);
+
+        if (updateModeEnabled) {
+            if (!updateTimer) {
+                fetchAndOpenUrls();
+                updateTimer = setInterval(fetchAndOpenUrls, 5000);
+            }
+        } else {
+            if (updateTimer) {
+                clearInterval(updateTimer);
+                updateTimer = null;
+            }
+        }
+        chrome.storage.local.set({ updateModeEnabled });
+        sendResponse({ updateModeEnabled });
+        return true; // 非同期レスポンスだから必要
+    } else if (message.action === "updatePriorityUrls") {
+        // 優先URLの更新
     priorityUrls = message.urls;
     chrome.storage.local.set({ priorityUrls }, () => {
       console.log("優先URLリストを保存:", priorityUrls);
@@ -45,9 +142,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     ungroupTabs();
     sortByOpenTimeRequest();
     return;
-  } else if (message.action === "groupTabsAutomatically") {
-    groupTabsAutomatically();
-    return;
+  } else if (message.action === "toggleAutoGrouping") {
+      autoGroupingEnabled = !autoGroupingEnabled;
+      console.log("自動グループ化モード:", autoGroupingEnabled ? "ON" : "OFF");
+      chrome.storage.local.set({ autoGroupEnabled: autoGroupingEnabled }); // ←ストレージにも保存！！
+
+      if (autoGroupingEnabled) {
+          regroupAllTabs();
+      }
+      sendResponse({ autoGroupingEnabled });
   } else if (message.action === "ungroupTabs") {
       ungroupTabs();
       return;
@@ -382,6 +485,33 @@ function classifyTab(title, url) {
     }
     return classifyTabByKeywords(title);
 }
+
+chrome.tabs.onCreated.addListener(async (tab) => {
+    if (!autoGroupingEnabled) return;
+    console.log("タブが作成されたのでグループ更新");
+    await regroupAllTabs();
+});
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    if (!autoGroupingEnabled) return;
+
+    if (changeInfo.url) { // URLが変わった瞬間だけ反応
+        console.log("タブのURLが変わったのでグループ更新");
+        await regroupAllTabs();
+    }
+});
+
+async function regroupAllTabs() {
+    console.log("タブを全体再グループ化中...");
+
+    // まず全部グループ解除
+    await ungroupTabs();
+
+    // そのあとカスタムとジャンルで再グループ
+    await groupTabsAutomatically();
+}
+
+
 
 async function groupTabsAutomatically() {
     // カスタムキーワードを取得
