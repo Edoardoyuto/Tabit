@@ -1,20 +1,21 @@
 {
   "manifest_version": 3,
   "name": "Tabit",
-  "version": "1.7",
-  "permissions": ["tabs", "storage", "tabGroups","activeTab"],
-  "host_permissions": ["<all_urls>"], 
+  "version": "2.1",
+  "description": "タブ管理拡張機能",
+  "permissions": [ "tabs", "storage", "tabGroups", "activeTab" ],
+  "host_permissions": [ "<all_urls>" ],
   "background": {
-      "service_worker": "background.js"
+    "service_worker": "background.js"
   },
   "action": {
-      "default_popup": "dashboard.html",
-      "default_icon": "icon.png"
+    "default_popup": "dashboard.html",
+    "default_icon": "icon.png"
   },
   "icons": {
-      "16": "icon.png",
-      "48": "icon.png",
-      "128": "icon.png"
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
   },
   "commands": {
     "sort_tabs_by_time": {
