@@ -10,10 +10,119 @@
 </head>
 <body>
 
-    <!-- 表示切替用ボタン -->
+    <!-- 通常画面 -->
+    <div id="mainPage">
+        <div class="header-container">
+            <h1>Tabit</h1>
+            <button id="settingsButton" class="settings-button" title="詳細設定">
+                <span class="material-symbols-outlined">
+                    settings
+                </span>
+            </button>
+        </div>
 
-    <div class="header-container">
-        <h1>Tabit</h1>
+
+        <div class="items">
+            <div class="item item01" id="sortByElapsedTimeButton" role="button" tabindex="0">
+                <span class="material-symbols-outlined">
+                    sort
+                </span>
+                <p class="buttonText">閲覧時間順</p>
+            </div>
+            <div class="item item02" id="sortByOpenTimeButton" role="button" tabindex="0">
+                <span class="material-symbols-outlined">
+                    tab_recent
+                </span>
+                <p class="buttonText">開いた時刻順</p>
+            </div>
+            <div class="item item03" id="groupTabsButton" role="button" tabindex="0">
+                <span class="material-symbols-outlined">
+                    category
+                </span>
+                <p class="buttonText">グループ化ON/OFF</p>
+            </div>
+            <div class="item item04" id="ungroupTabsButton" role="button" tabindex="0">
+                <span class="material-symbols-outlined">
+                    hide_source
+                </span>
+                <p class="buttonText">グループ化解除</p>
+            </div>
+        </div>
+
+        <div class="priority-custom-container">
+            <!-- 優先URL（左） -->
+            <div class="priority-section left-box">
+                <h2>優先URL設定</h2>
+                <div class="input-group">
+                    <input type="text" placeholder="text URL" id="priorityUrlInput">
+                    <button id="addPriorityUrlButton">追加</button>
+                </div>
+                <div class="input-group">
+                    <select id="tabListDropdown">
+                        <option value="">タブを選択</option>
+                    </select>
+                    <button id="addFromTabsButton">追加</button>
+                </div>
+
+            </div>
+
+            <!-- カスタムキーワード（右） -->
+            <div class="priority-section right-box">
+                <h2>カスタムグループ</h2>
+                <div class="input-group">
+                    <input type="text" placeholder="例: figma" id="customKeywordInput">
+                    <button id="addCustomKeywordButton">追加</button>
+                </div>
+
+                <ul id="customKeywordList"></ul>
+                <button id="groupByCustomKeywordsButton">キーワードでグループ化</button>
+            </div>
+        </div>
+
+
+        <!-- 一覧表示ボタン -->
+        <div class="view-buttons">
+            <button id="toggleTabListButton">タブ一覧ON/OEE</button>
+            <button id="togglePriorityUrlButton">優先URL一覧ON/OFF</button>
+            <button id="toggleCustomKeywordButton">カスタムワード一覧ON/OFF</button>
+        </div>
+
+        <!-- 一覧表示エリア -->
+        <div id="priorityUrlContainer" style="display: none;">
+            <h3>優先URL一覧</h3>
+            <ul id="priorityUrlList"></ul>
+        </div>
+
+        <div id="tabListContainer" style="display: none;">
+            <h2>タブ一覧</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>タブ名</th>
+                        <th>閲覧時間 (秒)</th>
+                        <th>開いた時間</th>
+                    </tr>
+                </thead>
+                <tbody id="timeTable"></tbody>
+            </table>
+        </div>
+
+        <!-- カスタムワード一覧用のエリア -->
+        <div id="customKeywordContainer" style="display: none;">
+            <h3>カスタムワード一覧</h3>
+            <ul id="customKeywordListFull"></ul>
+        </div>
+
+    </div>
+
+    <!-- 詳細設定画面 -->
+    <div id="settingsPage" style="display: none;">
+        <h1>詳細設定</h1>
+        <button id="backButton">戻る</button>
+
+        <h2>更新モード</h2>
+        <button id="toggleUpdateModeButton">更新モード: ON</button>
+
         <div class="shortcut-info">
             <ul>
                 <li><strong>Ctrl + Shift + 1</strong> - 閲覧時間順にタブをソート</li>
@@ -25,138 +134,54 @@
     </div>
 
 
-
-
-    <div class="items">
-        <div class="item item01" id="sortByElapsedTimeButton" role="button" tabindex="0">
-            <span class="material-symbols-outlined">
-                sort
-            </span>
-            <p class="buttonText">閲覧時間順</p>
-        </div>
-        <div class="item item02" id="sortByOpenTimeButton" role="button" tabindex="0">
-            <span class="material-symbols-outlined">
-                tab_recent
-            </span>
-            <p class="buttonText">開いた時刻順</p>
-        </div>
-        <div class="item item03" id="groupTabsButton" role="button" tabindex="0">
-            <span class="material-symbols-outlined">
-                category
-            </span>
-            <p class="buttonText">グループ化</p>
-        </div>
-        <div class="item item04" id="ungroupTabsButton" role="button" tabindex="0">
-            <span class="material-symbols-outlined">
-                hide_source
-            </span>
-            <p class="buttonText">グループ化解除</p>
-        </div>
-    </div>
-
-
-
-    <div class="priority-custom-container">
-        <!-- 優先URL（左） -->
-        <div class="priority-section left-box">
-            <h2>優先URL設定</h2>
-            <div class="input-group">
-                <input type="text" placeholder="text URL" id="priorityUrlInput">
-                <button id="addPriorityUrlButton">追加</button>
-            </div>
-            <div class="input-group">
-                <select id="tabListDropdown">
-                    <option value="">タブを選択</option>
-                </select>
-                <button id="addFromTabsButton">追加</button>
-            </div>
-
-        </div>
-
-        <!-- カスタムキーワード（右） -->
-        <div class="priority-section right-box">
-            <h2>カスタムグループ</h2>
-            <div class="input-group">
-                <input type="text" placeholder="例: figma" id="customKeywordInput">
-                <button id="addCustomKeywordButton">追加</button>
-            </div>
-
-            <ul id="customKeywordList"></ul>
-            <button id="groupByCustomKeywordsButton">キーワードでグループ化</button>
-        </div>
-    </div>
-
-
-    <!-- 一覧表示ボタン -->
-    <div class="view-buttons">
-        <button id="toggleTabListButton">タブ一覧ON/OEE</button>
-        <button id="togglePriorityUrlButton">優先URL一覧ON/OFF</button>
-        <button id="toggleCustomKeywordButton">カスタムワード一覧ON/OFF</button>
-    </div>
-
-    <!-- 一覧表示エリア -->
-    <div id="priorityUrlContainer" style="display: none;">
-        <h3>優先URL一覧</h3>
-        <ul id="priorityUrlList"></ul>
-    </div>
-
-    <div id="tabListContainer" style="display: none;">
-        <h2>タブ一覧</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>タブ名</th>
-                    <th>閲覧時間 (秒)</th>
-                    <th>開いた時間</th>
-                </tr>
-            </thead>
-            <tbody id="timeTable"></tbody>
-        </table>
-    </div>
-
-    <!-- カスタムワード一覧用のエリア -->
-    <div id="customKeywordContainer" style="display: none;">
-        <h3>カスタムワード一覧</h3>
-        <ul id="customKeywordListFull"></ul>
-    </div>
-
-
     <script>
         // 既存の各種イベントリスナー（ソート、グループ化など）のコードはそのまま
-        document.getElementById("sortByElapsedTimeButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, () => {
-                console.log("ソートリクエスト送信完了");
-                setTimeout(() => {
-                    console.log("ソート後にダッシュボード更新");
-                    chrome.runtime.sendMessage({ action: "updateDashboard" });
-                }, 1000);
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("sortByElapsedTimeButton").addEventListener("click", () => {
+                chrome.runtime.sendMessage({ action: "sortByElapsedTimeRequest" }, () => {
+                    console.log("ソートリクエスト送信完了");
+                    setTimeout(() => {
+                        console.log("ソート後にダッシュボード更新");
+                        chrome.runtime.sendMessage({ action: "updateDashboard" });
+                    }, 1000);
+                });
             });
-        });
-        document.getElementById("sortByOpenTimeButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "sortByOpenTimeRequest" }, () => {
-                console.log("ソートリクエスト送信完了");
-                setTimeout(() => {
-                    console.log("ソート後にダッシュボード更新");
-                    chrome.runtime.sendMessage({ action: "updateDashboard" });
-                }, 1000);
+            document.getElementById("sortByOpenTimeButton").addEventListener("click", () => {
+                chrome.runtime.sendMessage({ action: "sortByOpenTimeRequest" }, () => {
+                    console.log("ソートリクエスト送信完了");
+                    setTimeout(() => {
+                        console.log("ソート後にダッシュボード更新");
+                        chrome.runtime.sendMessage({ action: "updateDashboard" });
+                    }, 1000);
+                });
             });
-        });
-        document.getElementById("groupTabsButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "groupTabsAutomatically" }, () => {
-                console.log("タブグループ化リクエスト送信完了");
-                setTimeout(() => {
-                    console.log("グループ化後にダッシュボード更新");
-                    chrome.runtime.sendMessage({ action: "updateDashboard" });
-                }, 1000);
+            document.getElementById("groupTabsButton").addEventListener("click", () => {
+                chrome.runtime.sendMessage({ action: "groupTabsAutomatically" }, () => {
+                    console.log("タブグループ化リクエスト送信完了");
+                    setTimeout(() => {
+                        console.log("グループ化後にダッシュボード更新");
+                        chrome.runtime.sendMessage({ action: "updateDashboard" });
+                    }, 1000);
+                });
             });
-        });
-        document.getElementById("ungroupTabsButton").addEventListener("click", () => {
-            chrome.runtime.sendMessage({ action: "ungroupTabs" }, () => {
-                console.log("タブグループ解除リクエスト送信完了");
-                setTimeout(() => {
-                    console.log("グループ化解除後にダッシュボード更新");
-                    chrome.runtime.sendMessage({ action: "updateDashboard" });
-                }, 1000);
+            document.getElementById("ungroupTabsButton").addEventListener("click", () => {
+                chrome.runtime.sendMessage({ action: "ungroupTabs" }, () => {
+                    console.log("タブグループ解除リクエスト送信完了");
+                    setTimeout(() => {
+                        console.log("グループ化解除後にダッシュボード更新");
+                        chrome.runtime.sendMessage({ action: "updateDashboard" });
+                    }, 1000);
+                });
+            });
+
+            document.getElementById("settingsButton").addEventListener("click", () => {
+                document.getElementById("mainPage").style.display = "none";
+                document.getElementById("settingsPage").style.display = "block";
+            });
+
+            document.getElementById("backButton").addEventListener("click", () => {
+                document.getElementById("settingsPage").style.display = "none";
+                document.getElementById("mainPage").style.display = "block";
             });
         });
     </script>
