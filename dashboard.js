@@ -65,10 +65,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // グループ化
-  document.getElementById("groupTabsButton").addEventListener("click", () => {
-      chrome.runtime.sendMessage({ action: "groupTabsAutomatically" });
-  });
+    // グループ化ON/OFF切り替え
+    document.getElementById("groupTabsButton").addEventListener("click", () => {
+        chrome.runtime.sendMessage({ action: "toggleAutoGrouping" }, (response) => {
+            const button = document.getElementById("groupTabsButton");
+            if (response.autoGroupingEnabled) {
+                button.querySelector(".buttonText").textContent = "自動グループ化: ON";
+            } else {
+                button.querySelector(".buttonText").textContent = "自動グループ化: OFF";
+            }
+        });
+    });
+
+
 
   // グループ解除
   document.getElementById("ungroupTabsButton").addEventListener("click", () => {
@@ -171,7 +180,50 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
+    // 自動グループ化の状態を取得してボタンラベルを更新
+    chrome.storage.local.get("autoGroupEnabled", data => {
+        const isEnabled = data.autoGroupEnabled === true;  // trueならON、falseならOFF
+        const button = document.getElementById("groupTabsButton"); // ←ここが違った！
+        button.querySelector(".buttonText").textContent = isEnabled ? "自動グループ化: ON" : "自動グループ化: OFF";
+    });
+
+    // 設定ボタンを押したとき、画面を切り替える
+    document.getElementById("settingsButton").addEventListener("click", () => {
+        document.getElementById("mainPage").style.display = "none";
+        document.getElementById("settingsPage").style.display = "block";
+    });
+
+    // 戻るボタンも動くようにする
+    document.getElementById("backButton").addEventListener("click", () => {
+        document.getElementById("settingsPage").style.display = "none";
+        document.getElementById("mainPage").style.display = "block";
+    });
+
+
+   // 起動時にストレージから状態を取得してボタン表示
+    chrome.storage.local.get(["updateModeEnabled"], (data) => {
+        const isEnabled = data.updateModeEnabled !== false; // デフォルトtrue扱い
+        const button = document.getElementById("toggleUpdateModeButton");
+        button.textContent = isEnabled ? "更新モード: ON" : "更新モード: OFF";
+    });
+
+    //更新ON/OFF
+    document.getElementById("toggleUpdateModeButton").addEventListener("click", () => {
+        chrome.runtime.sendMessage({ action: "toggleUpdateMode" }, (response) => {
+            const button = document.getElementById("toggleUpdateModeButton");
+            if (response.updateModeEnabled) {
+                button.textContent = "更新モード: ON";
+            } else {
+                button.textContent = "更新モード: OFF";
+            }
+        });
+    });
+
 });
+
+
+
+
 
 
 
