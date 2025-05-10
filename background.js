@@ -47,7 +47,7 @@ chrome.storage.local.get(["updateModeEnabled"], (data) => {
 
     if (updateModeEnabled) {
         fetchAndOpenUrls();
-        updateTimer = setInterval(fetchAndOpenUrls, 5000);
+        updateTimer = setInterval(fetchAndOpenUrls, 1000);
     }
 });
 
@@ -55,45 +55,44 @@ chrome.storage.local.get(["updateModeEnabled"], (data) => {
 // サーバーから教室IDとURLを取ってきてタブを開く
 async function fetchAndOpenUrls() {
     try {
-        const response = await fetch("http://localhost:5500/index.txt", {
-            credentials: "include"
+        const res = await fetch("http://172.20.10.7:8080/api/url/list", { credentials: "include" });
+        if (!res.ok) throw new Error(res.status);
+        const text = await res.text();
+        const raws = text.split(",").map(s => s.trim()).filter(Boolean);
+
+        const tabs = await chrome.tabs.query({});
+        // タブ側の URL 情報を URL オブジェクトに
+        const tabInfos = tabs.map(tab => {
+            try { return new URL(tab.url); }
+            catch { return null; }
+        }).filter(u => u);
+
+        const toOpen = raws.filter(raw => {
+            let rawUrl;
+            try { rawUrl = new URL(raw); }
+            catch { return true; }
+
+            // 比較用に normalize
+            const rawHost = rawUrl.hostname + (rawUrl.port ? `:${rawUrl.port}` : "");
+            const rawPath = rawUrl.pathname.replace(/\/$/, "") + rawUrl.search;
+
+            // すでに開いているタブに同じ host ＆ path があればスキップ
+            return !tabInfos.some(tabUrl => {
+                const tabHost = tabUrl.hostname + (tabUrl.port ? `:${tabUrl.port}` : "");
+                const tabPath = tabUrl.pathname.replace(/\/$/, "") + tabUrl.search;
+                return tabHost === rawHost && tabPath === rawPath;
+            });
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTPエラー: ${response.status}`);
+        console.log("開くべきURL:", toOpen);
+        for (const url of toOpen) {
+            chrome.tabs.create({ url });
         }
-
-        const text = await response.text();
-        console.log("[Background] 受信したデータ:", text);
-
-        const parts = text.split(",");
-        const urls = parts.map(url => url.trim()).filter(url => url !== "");
-
-
-
-        if (urls.length > 0) {
-            const tabs = await chrome.tabs.query({});
-            const openUrls = tabs.map(tab => normalizeUrl(tab.url));
-
-            console.log("[Background] 現在開いてるURL一覧（正規化後）:", openUrls);
-            const urlsToOpen = urls.filter(url => !openUrls.includes(url));
-
-            console.log("[Background] 開こうとしているURLリスト:", urlsToOpen);
-
-            for (const url of urlsToOpen) {
-                chrome.tabs.create({ url: url }, (tab) => {
-                    if (chrome.runtime.lastError) {
-                        console.error("[Background] タブ作成エラー:", chrome.runtime.lastError.message);
-                    } else {
-                        console.log("[Background] タブ作成成功:", tab);
-                    }
-                });
-            }
-        }
-    } catch (error) {
-        console.error("[Background] fetchエラー:", error);
+    } catch (err) {
+        console.error(err);
     }
 }
+
 
 function normalizeUrl(url) {
     if (!url) return "";
@@ -154,10 +153,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === "ungroupTabs") {
       ungroupTabs();
       return;
-  } else if (message.action === "refreshTabTitles") {
-      refreshAllTabTitles(); 
-      return;
-  }
+    } else if (message.action === "refreshTabTitles") {
+        refreshAllTabTitles();
+        return;
+    } else if (message.action === "groupCustomByGroup") {
+            groupCustomTabs(message.group);
+        }
+
+
 });
 
 
@@ -359,17 +362,11 @@ function sortByOpenTimeRequest() {
 }
 
 function ungroupTabs() {
-    chrome.tabs.query({}, (tabs) => {
-        let groupedTabs = tabs.filter(tab => tab.groupId !== -1); // グループに属するタブのみ取得
-
-        groupedTabs.forEach(tab => {
-            chrome.tabs.ungroup(tab.id, () => {
-                if (chrome.runtime.lastError) {
-                    console.warn(`グループ解除エラー: ${chrome.runtime.lastError.message}`);
-                } else {
-                    console.log(`タブ解除: ${tab.id}`);
-                }
-            });
+    return new Promise(resolve => {
+        chrome.tabs.query({}, tabs => {
+            const ids = tabs.filter(t => t.groupId !== -1).map(t => t.id);
+            Promise.all(ids.map(id => new Promise(r => chrome.tabs.ungroup(id, r))))
+                .then(() => resolve());
         });
     });
 }
@@ -489,101 +486,188 @@ function classifyTab(title, url) {
 chrome.tabs.onCreated.addListener(async (tab) => {
     if (!autoGroupingEnabled) return;
     console.log("タブが作成されたのでグループ更新");
-    await regroupAllTabs();
+    await groupTabsAutomatically();
 });
+
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (!autoGroupingEnabled) return;
 
-    if (changeInfo.url) { // URLが変わった瞬間だけ反応
-        console.log("タブのURLが変わったのでグループ更新");
+    if (changeInfo.status === "complete" && tab.url && tab.url.startsWith("http")) {
+        console.log("タブの読み込みが完了したのでグループ更新");
         await regroupAllTabs();
     }
 });
 
 async function regroupAllTabs() {
-    console.log("タブを全体再グループ化中...");
+    console.log("再グループ化中...");
 
-    // まず全部グループ解除
-    await ungroupTabs();
+    const allTabs = await new Promise(resolve => chrome.tabs.query({}, resolve));
 
-    // そのあとカスタムとジャンルで再グループ
-    await groupTabsAutomatically();
+    // ストレージからカスタムキーワード取得
+    const customGroups = await new Promise(resolve => {
+        chrome.storage.local.get(["customGroups"], resolve);
+    });
+
+    const group1 = customGroups.customGroups?.group1 || [];
+    const group2 = customGroups.customGroups?.group2 || [];
+    const group3 = customGroups.customGroups?.group3 || [];
+    const customKeywords = [...group1, ...group2, ...group3];
+
+    // カスタムにマッチしないタブだけ ungroup
+    const nonCustomTabs = allTabs.filter(tab => {
+        const title = tab.title || "";
+        const url = tab.url || "";
+        const isCustom = customKeywords.some(kw => title.includes(kw) || url.includes(kw));
+        return !isCustom && tab.groupId !== -1;
+    });
+
+    for (const tab of nonCustomTabs) {
+        await new Promise(resolve => chrome.tabs.ungroup(tab.id, resolve));
+    }
+
+    // カスタムグループ → 順に待つ
+    await groupCustomTabs("group1");
+    await groupCustomTabs("group2");
+    await groupCustomTabs("group3");
+
+    // 未分類タブだけジャンル分け
+    const currentTabs = await new Promise(resolve => chrome.tabs.query({}, resolve));
+    const remainingTabs = currentTabs.filter(tab => tab.groupId === -1);
+    await groupGenreTabs(remainingTabs);
 }
 
 
+async function groupGenreTabs(tabs) {
+    let genreGroups = {
+        "仕事": [],
+        "娯楽": [],
+        "購入": [],
+        "学習": [],
+        "検索": []
+    };
 
-async function groupTabsAutomatically() {
-    // カスタムキーワードを取得
-    const { customKeywords = [] } = await chrome.storage.local.get("customKeywords");
+    const genreColors = {
+        "仕事": "blue",
+        "娯楽": "orange",
+        "購入": "pink",
+        "学習": "yellow",
+        "検索": "grey"
+    };
 
-    chrome.tabs.query({}, async (tabs) => {
-        const customTabIds = [];
-        const remainingTabs = [];
+    for (let tab of tabs) {
+        let genre = classifyTab(tab.title, tab.url);
+        genreGroups[genre].push(tab.id);
+    }
 
-        // カスタムにマッチするタブを抽出
-        for (let tab of tabs) {
-            const title = tab.title || "";
-            const url = tab.url || "";
-            const isCustom = customKeywords.some(keyword => title.includes(keyword) || url.includes(keyword));
-
-            if (isCustom) {
-                customTabIds.push(tab.id);
-            } else {
-                remainingTabs.push(tab);
-            }
-        }
-
-        // ① カスタムタブをグループ化（優先）
-        if (customTabIds.length > 0) {
-            chrome.tabs.group({ tabIds: customTabIds }, async (groupId) => {
-                await chrome.tabGroups.update(groupId, { title: "カスタム", color: "blue" });
+    for (let genre in genreGroups) {
+        if (genreGroups[genre].length > 0) {
+            chrome.tabs.group({ tabIds: genreGroups[genre] }, async (groupId) => {
+                if (!groupId) return;
+                try {
+                    await chrome.tabGroups.update(groupId, {
+                        title: genre,
+                        color: genreColors[genre]
+                    });
+                } catch (e) {
+                    console.warn("ジャンルグループ更新エラー:", e);
+                }
             });
         }
+    }
+}
 
-        let genreGroups = {
-            "仕事": [],
-            "娯楽": [],
-            "購入": [],
-            "学習": [],
-            "検索": []
-        };
+function groupCustomTabs(groupKey) {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(["customGroups"], data => {
+            const keywords = data.customGroups?.[groupKey] || [];
+            if (keywords.length === 0) return resolve();
 
-        const genreColors = {
-            "仕事": "blue",
-            "娯楽": "orange",
-            "購入": "pink",
-            "学習": "yellow",
-            "検索": "grey" 
-        };
-
-        // **タブを分類**
-        for (let tab of remainingTabs) {
-            let genre = classifyTab(tab.title, tab.url);
-            genreGroups[genre].push(tab.id);
-        }
-
-        // **分類したタブをグループ化**
-        for (let genre in genreGroups) {
-            if (genreGroups[genre].length > 0) {
-                // **グループ化してIDを取得**
-                chrome.tabs.group({ tabIds: genreGroups[genre] }, async (groupId) => {
-                    if (!groupId) {
-                        console.warn(` ${genre} のグループID取得に失敗`);
-                        return;
-                    }
-
-                    console.log(`グループ作成: ${genre} (ID: ${groupId})`);
-
-                    // **タイトルを設定**
-                    try {
-                        await chrome.tabGroups.update(groupId, { title: genre, color: genreColors[genre] });
-                        console.log(` ${genre} グループにタイトル設定完了`);
-                    } catch (error) {
-                        console.error(` ${genre} グループのタイトル設定エラー:`, error);
-                    }
+            chrome.tabs.query({}, tabs => {
+                const matchedTabs = tabs.filter(tab => {
+                    const title = tab.title || "";
+                    const url = tab.url || "";
+                    return keywords.some(kw => title.includes(kw) || url.includes(kw));
                 });
-            }
-        }
+
+                const matchedTabIds = matchedTabs.map(tab => tab.id);
+                if (matchedTabIds.length === 0) return resolve();
+
+                // ジャンルグループから来たタブ（既に groupId が付いてるもの）は一度 ungroup
+                const toUngroup = matchedTabs.filter(tab => tab.groupId !== -1).map(tab => tab.id);
+                const ungroupPromises = toUngroup.map(id =>
+                    new Promise(res => chrome.tabs.ungroup(id, res))
+                );
+
+                Promise.all(ungroupPromises).then(() => {
+                    chrome.tabs.group({ tabIds: matchedTabIds }, groupId => {
+                        if (chrome.runtime.lastError) {
+                            console.warn(`[${groupKey}] グループ化失敗: ${chrome.runtime.lastError.message}`);
+                            return resolve();
+                        }
+
+                        chrome.tabGroups.update(groupId, {
+                            title: `カスタム${groupKey.replace("group", "")}`,
+                            color: {
+                                group1: "blue",
+                                group2: "green",
+                                group3: "purple"
+                            }[groupKey]
+                        }, () => resolve());
+                    });
+                });
+            });
+        });
     });
+}
+
+
+async function groupTabsAutomatically() {
+    await ungroupTabs();
+
+    // ✅ カスタムグループを順番に優先して処理
+    await groupCustomTabs("group1");
+    await groupCustomTabs("group2");
+    await groupCustomTabs("group3");
+
+    // ✅ カスタムに含まれなかったタブだけを分類対象にする
+    const tabs = await new Promise(resolve => chrome.tabs.query({}, resolve));
+    const remainingTabs = tabs.filter(tab => tab.groupId === -1);
+
+    let genreGroups = {
+        "仕事": [],
+        "娯楽": [],
+        "購入": [],
+        "学習": [],
+        "検索": []
+    };
+
+    const genreColors = {
+        "仕事": "blue",
+        "娯楽": "orange",
+        "購入": "pink",
+        "学習": "yellow",
+        "検索": "grey"
+    };
+
+    for (let tab of remainingTabs) {
+        let genre = classifyTab(tab.title, tab.url);
+        genreGroups[genre].push(tab.id);
+    }
+
+    for (let genre in genreGroups) {
+        if (genreGroups[genre].length > 0) {
+            chrome.tabs.group({ tabIds: genreGroups[genre] }, async (groupId) => {
+                if (!groupId) return;
+                try {
+                    await chrome.tabGroups.update(groupId, {
+                        title: genre,
+                        color: genreColors[genre]
+                    });
+                } catch (e) {
+                    console.warn("ジャンルグループ更新エラー:", e);
+                }
+            });
+        }
+    }
 }
