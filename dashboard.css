@@ -13,6 +13,7 @@ body {
 }
    h1,h2 {
     text-align: center;
+
   }
   table {
     width: 100%;
@@ -99,17 +100,6 @@ body {
     color: #4169e1;
   }
 
-..priority-section {
-    background: #e0e0e0;
-    padding: 1rem 1rem 0.5rem; /* ← 下だけ小さく！（上右下） */
-    border-radius: 20px;
-    box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffff;
-    border: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem; /* ← 要素間の余白も縮める */
-    margin-bottom: 0; /* ← 外側の下余白も削る（必要なら） */
-}
 
 .priority-custom-container {
     display: flex;
@@ -117,14 +107,13 @@ body {
     gap: 1rem; /* ← 隙間を小さく */
     margin-top: 20px;
     flex-wrap: nowrap;
+
 }
 
 .left-box, .right-box {
     width: 45%; /* ← 両方を少し小さく */
     min-width: 0; /* ← はみ出しを防ぐ保険 */
 }
-
-
 
 .input-group input[type="text"],
 .input-group select {
@@ -145,7 +134,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between; 
-    gap: 10px;
+    
     margin-bottom: 1rem;
     flex-wrap: nowrap;
 }
@@ -198,28 +187,6 @@ body {
     white-space: nowrap;
     max-width: 300px; 
   }
-
-  #tabListContainer {
-    background: #e0e0e0;
-    padding: 2rem;
-    border-radius: 20px;
-    box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffff;
-    border: none;
-    margin-top: 20px;
-  }
-.view-buttons {
-    margin-top: 20px;
-    margin-bottom: 10px;
-    margin-bottom: 5px;
-    text-align: center;
-    gap: 1rem; /* ボタン間の間隔 */
-}
-    .view-buttons button {
-        padding: 6px 12px; /* ← 上下6px 左右12pxでややスリムに */
-    }
-
-
-  
   
   .priority-section h2 {
     margin-top: 0;
@@ -350,15 +317,7 @@ body {
     color: #4169e1;
   }
 
-  .priority-section{
-    background: #e0e0e0;
-    padding: 2rem;
-    border-radius: 20px;
-    box-shadow: 
-                10px 10px 30px #bebebe,
-                -10px -10px 30px #ffff;
-    border: none;
-  }
+ 
 
   .input-group input[type="text"] {
     
@@ -371,7 +330,7 @@ body {
     font-size: 14px;      
     line-height: 1;       
     height: 40px;         
-    padding: 0 15px;      
+         
   }
   
 
@@ -406,10 +365,14 @@ button {
     right: 20px;
     font-size: 28px;
     color: #333;
+    font-size: 15px;
+    margin-top: 1rem;
+    margin-right: 1.5rem;
 }
 
     .settings-button:hover {
         color: #666;
+
     }
 
 
@@ -465,17 +428,13 @@ button {
 
   #tabListContainer {
     background: #e0e0e0;
-    padding: 2rem;
+    padding: 1rem;
     border-radius: 20px;
     box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffff;
     border: none;
-    margin-top: 20px;
+    
   }
-  .view-buttons {
-    margin-top: 20px;  
-    margin-bottom: 10px; 
-    text-align: center;
-  }
+ 
 
   .priority-section {
     background: #e0e0e0;
@@ -505,9 +464,10 @@ button {
     height: 90px;
     width: 280px;
     background: #e0e0e0;
-    padding: 0.3rem;
+    padding: 2rem;
     border-radius: 10px;
     box-shadow: 3px 3px 10px #bebebe, -3px -3px 10px #ffffff;
+    gap: 5rem;
 }
 
     .shortcut-info ul {
@@ -520,3 +480,53 @@ button {
         font-size: 12px;
         line-height: 1;
     }
+
+#customGroupSelector {
+    background: #e0e0e0;
+    border: none;
+    border-radius: 10px;
+    box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
+    font-size: 14px;
+    line-height: 1;
+    height: 40px;
+    gap:1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    
+    margin-bottom: 1rem;
+}
+.item03.active {
+    color: #ff4500;
+    box-shadow: inset 5px 5px 15px #bebebe, inset -5px -5px 15px #ffffff;
+}
+
+.priority-section.right-box .input-group:nth-of-type(2) {
+    margin-top: -1.0rem; 
+}
+
+.priority-section.right-box #customKeywordContainer {
+    margin-top: -0.2rem; 
+    font-size: 10px;
+}
+
+.update-row {
+    display: flex;
+    align-items: center; 
+    gap: 0.5rem;
+    margin: 1rem 0; 
+}
+
+.update-row__label {
+    margin: 0; 
+    font-size: 1.25rem; 
+}
+
+.update-row__button {
+    margin-top: 0.8rem;
+    padding: 0.5rem 1rem;
+}
+
+#tabListContainer {
+    margin-bottom: 2rem;
+}
