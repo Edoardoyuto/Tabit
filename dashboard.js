@@ -9,18 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     chrome.runtime.sendMessage({ action: "refreshTabTitles" });
 
 
-  document.getElementById("toggleTabListButton").addEventListener("click", () => {
-    const container = document.getElementById("tabListContainer");
-    container.style.display = container.style.display === "none" ? "block" : "none";
-  });
-  document.getElementById("togglePriorityUrlButton").addEventListener("click", () => {
-    const container = document.getElementById("priorityUrlContainer");
-    container.style.display = container.style.display === "none" ? "block" : "none";
-  });
-    document.getElementById("toggleCustomKeywordButton").addEventListener("click", () => {
-        const container = document.getElementById("customKeywordContainer");
-        container.style.display = container.style.display === "none" ? "block" : "none";
-    });
 
   // タブ一覧をドロップダウンに更新
   function updateTabListDropdown() {
@@ -65,17 +53,31 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-    // グループ化ON/OFF切り替え
-    document.getElementById("groupTabsButton").addEventListener("click", () => {
-        chrome.runtime.sendMessage({ action: "toggleAutoGrouping" }, (response) => {
-            const button = document.getElementById("groupTabsButton");
-            if (response.autoGroupingEnabled) {
-                button.querySelector(".buttonText").textContent = "自動グループ化: ON";
-            } else {
-                button.querySelector(".buttonText").textContent = "自動グループ化: OFF";
-            }
+
+    const groupBtn = document.getElementById("groupTabsButton");
+  
+      // 起動時に前回の状態を復元
+        chrome.storage.local.get("autoGroupingEnabled", data => {
+               const isOn = !!data.autoGroupingEnabled;
+              groupBtn.classList.toggle("active", isOn);
+             groupBtn.querySelector(".buttonText").textContent = isOn
+                    ? "自動グループ化: ON"
+                : "自動グループ化: OFF";
+            });
+   
+
+    // クリック → トグル・保存・テキスト更新・背景処理通知
+    groupBtn.addEventListener("click", () => {
+          const isOn = groupBtn.classList.toggle("active");
+        　 // 見た目テキスト
+              groupBtn.querySelector(".buttonText").textContent = isOn
+                    ? "自動グループ化: ON"
+                : "自動グループ化: OFF";
+          // 永続化
+              chrome.storage.local.set({ autoGroupingEnabled: isOn });
+          // 背景スクリプトにも状態を通知（必要なら）
+              chrome.runtime.sendMessage({ action: "toggleAutoGrouping", autoGroupingEnabled: isOn });
         });
-    });
 
 
 
@@ -84,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
       chrome.runtime.sendMessage({ action: "ungroupTabs" }, () => {
           console.log("タブのグループ解除リクエスト送信完了");
       });
+
   });
 
   // 開いた時間順ソート
@@ -115,64 +118,104 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   });
-    // カスタム追加
+    // グループ別に追加・削除・読み込みするように変更
     document.getElementById("addCustomKeywordButton").addEventListener("click", () => {
         const input = document.getElementById("customKeywordInput");
         const newKeyword = input.value.trim();
+        const group = document.getElementById("customGroupSelector").value;
 
-        if (newKeyword) {
-            chrome.storage.local.get(["customKeywords"], data => {
-                let keywords = data.customKeywords || [];
-                if (!keywords.includes(newKeyword)) {
-                    keywords.push(newKeyword);
-                    chrome.storage.local.set({ customKeywords: keywords }, () => {
-                        input.value = "";
-                        loadCustomKeywords();
-                    });
-                }
-            });
-        }
+        if (!newKeyword) return;
+
+        chrome.storage.local.get(["customGroups"], data => {
+            const groups = data.customGroups || { group1: [], group2: [], group3: [] };
+            if (!groups[group].includes(newKeyword)) {
+                groups[group].push(newKeyword);
+                chrome.storage.local.set({ customGroups: groups }, () => {
+                    input.value = "";
+                    loadCustomKeywords(group);
+                });
+            }
+        });
     });
+
+    function removeCustomKeyword(group, keywordToRemove) {
+        chrome.storage.local.get(["customGroups"], data => {
+            const groups = data.customGroups || {};
+            groups[group] = (groups[group] || []).filter(k => k !== keywordToRemove);
+            chrome.storage.local.set({ customGroups: groups }, () => {
+                loadCustomKeywords(group); // 再描画
+            });
+        });
+    }
+
+    // グループを指定して表示
+    function loadCustomKeywords(group = "group1") {
+        chrome.storage.local.get(["customGroups"], data => {
+            const groups = data.customGroups || {};
+            const keywords = groups[group] || [];
+
+            const fullList = document.getElementById("customKeywordListFull");
+            fullList.innerHTML = "";
+            keywords.forEach(keyword => {
+                const li = document.createElement("li");
+                li.textContent = keyword;
+                const btn = document.createElement("button");
+                btn.textContent = "削除";
+                btn.addEventListener("click", () => removeCustomKeyword(group, keyword));
+                li.appendChild(btn);
+                fullList.appendChild(li);
+            });
+        });
+    }
+
+    // セレクト変更時に切り替え
+    document.getElementById("customGroupSelector").addEventListener("change", () => {
+        const group = document.getElementById("customGroupSelector").value;
+        loadCustomKeywords(group);
+    });
+
     //キーワードでグループ化
     document.getElementById("groupByCustomKeywordsButton").addEventListener("click", () => {
-        chrome.storage.local.get(["customKeywords"], data => {
-            const keywords = data.customKeywords || [];
+        const groupKey = document.getElementById("customGroupSelector").value; // group1 など
+
+        chrome.storage.local.get(["customGroups"], data => {
+            const customGroups = data.customGroups || {};
+            const keywords = customGroups[groupKey] || [];
+
             if (keywords.length === 0) {
-                alert("カスタムキーワードが登録されていません！");
+                alert("このカスタムグループにはキーワードが登録されていません！");
                 return;
             }
 
             chrome.tabs.query({}, tabs => {
-                const targetTabIds = [];
+                const matchedTabIds = tabs
+                    .filter(tab => {
+                        const title = tab.title || "";
+                        const url = tab.url || "";
+                        return keywords.some(kw => title.includes(kw) || url.includes(kw));
+                    })
+                    .map(tab => tab.id);
 
-                tabs.forEach(tab => {
-                    const title = tab.title || "";
-                    const url = tab.url || "";
-
-                    const match = keywords.some(keyword =>
-                        title.includes(keyword) || url.includes(keyword)
-                    );
-
-                    if (match) {
-                        targetTabIds.push(tab.id);
-                    }
-                });
-
-                if (targetTabIds.length === 0) {
+                if (matchedTabIds.length === 0) {
                     alert("該当するタブが見つかりませんでした。");
                     return;
                 }
 
-                chrome.tabs.group({ tabIds: targetTabIds }, groupId => {
+                chrome.tabs.group({ tabIds: matchedTabIds }, groupId => {
                     if (chrome.runtime.lastError) {
                         console.error("グループ化失敗:", chrome.runtime.lastError);
                         return;
                     }
 
-                    // グループ名と色を設定
+                    const groupColor = {
+                        group1: "blue",
+                        group2: "green",
+                        group3: "purple"
+                    }[groupKey] || "grey";
+
                     chrome.tabGroups.update(groupId, {
-                        title: "カスタム",
-                        color: "blue" // 好きな色に変更可能（red, yellow, cyan, pink, etc）
+                        title: `カスタム${groupKey.replace("group", "")}`,
+                        color: groupColor
                     });
                 });
             });
@@ -191,6 +234,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("settingsButton").addEventListener("click", () => {
         document.getElementById("mainPage").style.display = "none";
         document.getElementById("settingsPage").style.display = "block";
+        updateDashboard(); // ← 必ず再描画
+        document.getElementById("tabListContainer").style.display = "block";
+
     });
 
     // 戻るボタンも動くようにする
@@ -219,9 +265,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+
 });
-
-
 
 
 
@@ -255,22 +300,21 @@ function updateDashboard() {
 
             const tableBody = document.getElementById("timeTable");
             tableBody.innerHTML = "";
-
             tabs.forEach(tab => {
-                const tabId = tab.id.toString();
-                if (!(tabId in elapsedTimes)) return;
-
-                const baseSeconds = Math.floor(elapsedTimes[tabId] / 1000);
-                initialTabTimes[tabId] = baseSeconds;
-
+                const tabId = tab.id.toString();  // ← 修正！
                 const tr = document.createElement("tr");
                 const titleTd = document.createElement("td");
                 const timeTd = document.createElement("td");
                 const openTimeTd = document.createElement("td");
 
-                titleTd.textContent = titles[tabId] || "(No Title)";
+                titleTd.textContent = titles[tabId] || tab.title || "(No Title)";
+
+                const baseMilliseconds = elapsedTimes[tabId] || 0;
+                const baseSeconds = Math.floor(baseMilliseconds / 1000);
+                initialTabTimes[tabId] = baseSeconds;
+
                 timeTd.id = `time-${tabId}`;
-                timeTd.textContent = formatTime(baseSeconds * 1000);
+                timeTd.textContent = formatTime(baseMilliseconds);
 
                 if (openTimes[tabId]) {
                     const dateObj = new Date(openTimes[tabId]);
@@ -284,6 +328,7 @@ function updateDashboard() {
                 tr.appendChild(openTimeTd);
                 tableBody.appendChild(tr);
             });
+
         });
     });
 }
