@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tabit",
-  "version": "2.1",
+  "version": "3.0",
   "description": "タブ管理拡張機能",
   "permissions": [ "tabs", "storage", "tabGroups", "activeTab" ],
   "host_permissions": [ "<all_urls>" ],
